@@ -1,0 +1,6 @@
+{
+  "name": "Upstream Institute",
+  "description": "Reimagining Thought for intergenerational impact.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

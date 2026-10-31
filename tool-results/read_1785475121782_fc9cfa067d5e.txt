@@ -1,0 +1,590 @@
+     1→     1→'use client'
+     2→     2→
+     3→     3→import { useEffect, useState, createContext, useContext } from 'react'
+     4→     4→
+     5→     5→/* ───────────────────────── THEME ───────────────────────── */
+     6→     6→
+     7→     7→type Theme = 'dark' | 'light'
+     8→     8→
+     9→     9→const ThemeCtx = createContext<{ theme: Theme; toggle: () => void }>({ theme: 'light', toggle: () => {} })
+    10→    10→
+    11→    11→function useTheme() {
+    12→    12→  return useContext(ThemeCtx)
+    13→    13→}
+    14→    14→
+    15→    15→function ThemeProvider({ children }: { children: React.ReactNode }) {
+    16→    16→  const [theme, setTheme] = useState<Theme>(() => {
+    17→    17→    if (typeof window === 'undefined') return 'light'
+    18→    18→    return (localStorage.getItem('ui-theme') as Theme) || 'light'
+    19→    19→  })
+    20→    20→
+    21→    21→  useEffect(() => {
+    22→    22→    localStorage.setItem('ui-theme', theme)
+    23→    23→    document.documentElement.style.colorScheme = theme
+    24→    24→  }, [theme])
+    25→    25→
+    26→    26→  const toggle = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'))
+    27→    27→
+    28→    28→  return <ThemeCtx.Provider value={{ theme, toggle }}>{children}</ThemeCtx.Provider>
+    29→    29→}
+    30→    30→
+    31→    31→function v(theme: Theme) {
+    32→    32→  const d = theme === 'dark'
+    33→    33→  return {
+    34→    34→    bg:       d ? '#000000' : '#FFFFFF',
+    35→    35→    text:     d ? '#FFFFFF' : '#000000',
+    36→    36→    muted:    d ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.45)',
+    37→    37→    faint:    d ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.25)',
+    38→    38→    ghost:    d ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.12)',
+    39→    39→    divider:  d ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)',
+    40→    40→    navBg:    d ? 'rgba(0,0,0,0.9)' : 'rgba(255,255,255,0.9)',
+    41→    41→    forest:   d ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+    42→    42→  }
+    43→    43→}
+    44→    44→
+    45→    45→/* ───────────────────────── TOGGLE (top-right) ───────────────────────── */
+    46→    46→
+    47→    47→function ThemeToggle() {
+    48→    48→  const { theme, toggle } = useTheme()
+    49→    49→  const col = v(theme)
+    50→    50→  const isDark = theme === 'dark'
+    51→    51→
+    52→    52→  return (
+    53→    53→    <button
+    54→    54→      onClick={toggle}
+    55→    55→      className="fixed cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110"
+    56→    56→      style={{
+    57→    57→        top: '1.25rem',
+    58→    58→        right: '1.25rem',
+    59→    59→        width: '2.5rem',
+    60→    60→        height: '2.5rem',
+    61→    61→        borderRadius: '50%',
+    62→    62→        border: `1.5px solid ${col.muted}`,
+    63→    63→        background: col.bg,
+    64→    64→        zIndex: 9999,
+    65→    65→      }}
+    66→    66→      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+    67→    67→    >
+    68→    68→      <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
+    69→    69→        stroke={col.text} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    70→    70→        {isDark ? (
+    71→    71→          <>
+    72→    72→            <circle cx="12" cy="12" r="5" />
+    73→    73→            <line x1="12" y1="1" x2="12" y2="3" />
+    74→    74→            <line x1="12" y1="21" x2="12" y2="23" />
+    75→    75→            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+    76→    76→            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+    77→    77→            <line x1="1" y1="12" x2="3" y2="12" />
+    78→    78→            <line x1="21" y1="12" x2="23" y2="12" />
+    79→    79→            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+    80→    80→            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+    81→    81→          </>
+    82→    82→        ) : (
+    83→    83→          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+    84→    84→        )}
+    85→    85→      </svg>
+    86→    86→    </button>
+    87→    87→  )
+    88→    88→}
+    89→    89→
+    90→    90→/* ───────────────────────── Nordic Forest SVG ───────────────────────── */
+    91→    91→
+    92→    92→function NordicForest({ color }: { color: string }) {
+    93→    93→  return (
+    94→    94→    <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+    95→    95→      <svg className="absolute bottom-0 left-0 w-full" style={{ height: '70vh' }} viewBox="0 0 1440 900" preserveAspectRatio="xMidYMax slice" fill="none">
+    96→    96→        {/* Far back trees - smaller, fainter */}
+    97→    97→        <g stroke={color} strokeWidth="0.8" opacity="0.3">
+    98→    98→          <line x1="80" y1="900" x2="80" y2="620" /><polygon points="80,620 55,720 105,720" fill="none" stroke={color} strokeWidth="0.6" />
+    99→    99→          <line x1="200" y1="900" x2="200" y2="580" /><polygon points="200,580 170,690 230,690" fill="none" stroke={color} strokeWidth="0.6" />
+   100→   100→          <line x1="350" y1="900" x2="350" y2="600" /><polygon points="350,600 325,700 375,700" fill="none" stroke={color} strokeWidth="0.6" />
+   101→   101→          <line x1="520" y1="900" x2="520" y2="560" /><polygon points="520,560 490,670 550,670" fill="none" stroke={color} strokeWidth="0.6" />
+   102→   102→          <line x1="680" y1="900" x2="680" y2="590" /><polygon points="680,590 650,700 710,700" fill="none" stroke={color} strokeWidth="0.6" />
+   103→   103→          <line x1="850" y1="900" x2="850" y2="610" /><polygon points="850,610 820,710 880,710" fill="none" stroke={color} strokeWidth="0.6" />
+   104→   104→          <line x1="1000" y1="900" x2="1000" y2="570" /><polygon points="1000,570 970,680 1030,680" fill="none" stroke={color} strokeWidth="0.6" />
+   105→   105→          <line x1="1150" y1="900" x2="1150" y2="600" /><polygon points="1150,600 1120,710 1180,710" fill="none" stroke={color} strokeWidth="0.6" />
+   106→   106→          <line x1="1300" y1="900" x2="1300" y2="630" /><polygon points="1300,630 1275,730 1325,730" fill="none" stroke={color} strokeWidth="0.6" />
+   107→   107→          <line x1="1400" y1="900" x2="1400" y2="650" /><polygon points="1400,650 1378,740 1422,740" fill="none" stroke={color} strokeWidth="0.6" />
+   108→   108→        </g>
+   109→   109→        {/* Mid trees */}
+   110→   110→        <g stroke={color} strokeWidth="1" opacity="0.5">
+   111→   111→          <line x1="40" y1="900" x2="40" y2="500" />
+   112→   112→          <polygon points="40,500 5,630 75,630" fill="none" stroke={color} strokeWidth="0.8" />
+   113→   113→          <polygon points="40,560 15,650 65,650" fill="none" stroke={color} strokeWidth="0.8" />
+   114→   114→          <line x1="150" y1="900" x2="150" y2="480" />
+   115→   115→          <polygon points="150,480 110,620 190,620" fill="none" stroke={color} strokeWidth="0.8" />
+   116→   116→          <polygon points="150,550 125,640 175,640" fill="none" stroke={color} strokeWidth="0.8" />
+   117→   117→          <line x1="300" y1="900" x2="300" y2="460" />
+   118→   118→          <polygon points="300,460 260,600 340,600" fill="none" stroke={color} strokeWidth="0.8" />
+   119→   119→          <polygon points="300,530 275,620 325,620" fill="none" stroke={color} strokeWidth="0.8" />
+   120→   120→          <line x1="470" y1="900" x2="470" y2="490" />
+   121→   121→          <polygon points="470,490 435,610 505,610" fill="none" stroke={color} strokeWidth="0.8" />
+   122→   122→          <polygon points="470,555 448,635 492,635" fill="none" stroke={color} strokeWidth="0.8" />
+   123→   123→          <line x1="620" y1="900" x2="620" y2="470" />
+   124→   124→          <polygon points="620,470 585,600 655,600" fill="none" stroke={color} strokeWidth="0.8" />
+   125→   125→          <polygon points="620,540 598,625 642,625" fill="none" stroke={color} strokeWidth="0.8" />
+   126→   126→          <line x1="780" y1="900" x2="780" y2="500" />
+   127→   127→          <polygon points="780,500 745,620 815,620" fill="none" stroke={color} strokeWidth="0.8" />
+   128→   128→          <polygon points="780,565 758,645 802,645" fill="none" stroke={color} strokeWidth="0.8" />
+   129→   129→          <line x1="940" y1="900" x2="940" y2="450" />
+   130→   130→          <polygon points="940,450 900,590 980,590" fill="none" stroke={color} strokeWidth="0.8" />
+   131→   131→          <polygon points="940,520 918,610 962,610" fill="none" stroke={color} strokeWidth="0.8" />
+   132→   132→          <line x1="1100" y1="900" x2="1100" y2="480" />
+   133→   133→          <polygon points="1100,480 1065,610 1135,610" fill="none" stroke={color} strokeWidth="0.8" />
+   134→   134→          <polygon points="1100,550 1078,635 1122,635" fill="none" stroke={color} strokeWidth="0.8" />
+   135→   135→          <line x1="1250" y1="900" x2="1250" y2="470" />
+   136→   136→          <polygon points="1250,470 1215,600 1285,600" fill="none" stroke={color} strokeWidth="0.8" />
+   137→   137→          <polygon points="1250,540 1228,625 1272,625" fill="none" stroke={color} strokeWidth="0.8" />
+   138→   138→          <line x1="1380" y1="900" x2="1380" y2="510" />
+   139→   139→          <polygon points="1380,510 1350,630 1410,630" fill="none" stroke={color} strokeWidth="0.8" />
+   140→   140→        </g>
+   141→   141→        {/* Front trees - tallest, boldest */}
+   142→   142→        <g stroke={color} strokeWidth="1.2" opacity="0.7">
+   143→   143→          <line x1="120" y1="900" x2="120" y2="380" />
+   144→   144→          <polygon points="120,380 75,530 165,530" fill="none" stroke={color} strokeWidth="1" />
+   145→   145→          <polygon points="120,460 90,560 150,560" fill="none" stroke={color} strokeWidth="1" />
+   146→   146→          <polygon points="120,530 100,600 140,600" fill="none" stroke={color} strokeWidth="1" />
+   147→   147→          <line x1="420" y1="900" x2="420" y2="360" />
+   148→   148→          <polygon points="420,360 375,510 465,510" fill="none" stroke={color} strokeWidth="1" />
+   149→   149→          <polygon points="420,440 392,540 448,540" fill="none" stroke={color} strokeWidth="1" />
+   150→   150→          <polygon points="420,510 400,580 440,580" fill="none" stroke={color} strokeWidth="1" />
+   151→   151→          <line x1="720" y1="900" x2="720" y2="370" />
+   152→   152→          <polygon points="720,370 675,520 765,520" fill="none" stroke={color} strokeWidth="1" />
+   153→   153→          <polygon points="720,450 692,550 748,550" fill="none" stroke={color} strokeWidth="1" />
+   154→   154→          <polygon points="720,520 700,590 740,590" fill="none" stroke={color} strokeWidth="1" />
+   155→   155→          <line x1="1050" y1="900" x2="1050" y2="350" />
+   156→   156→          <polygon points="1050,350 1000,500 1100,500" fill="none" stroke={color} strokeWidth="1" />
+   157→   157→          <polygon points="1050,430 1020,535 1080,535" fill="none" stroke={color} strokeWidth="1" />
+   158→   158→          <polygon points="1050,500 1030,580 1070,580" fill="none" stroke={color} strokeWidth="1" />
+   159→   159→          <line x1="1320" y1="900" x2="1320" y2="400" />
+   160→   160→          <polygon points="1320,400 1280,530 1360,530" fill="none" stroke={color} strokeWidth="1" />
+   161→   161→          <polygon points="1320,470 1295,555 1345,555" fill="none" stroke={color} strokeWidth="1" />
+   162→   162→        </g>
+   163→   163→      </svg>
+   164→   164→    </div>
+   165→   165→  )
+   166→   166→}
+   167→   167→
+   168→   168→/* ───────────────────────── GRAIN ───────────────────────── */
+   169→   169→
+   170→   170→function Grain() {
+   171→   171→  return (
+   172→   172→    <div
+   173→   173→      className="fixed inset-0 pointer-events-none"
+   174→   174→      style={{
+   175→   175→        zIndex: 1,
+   176→   176→        opacity: 0.018,
+   177→   177→        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+   178→   178→        backgroundRepeat: 'repeat',
+   179→   179→        backgroundSize: '256px 256px',
+   180→   180→      }}
+   181→   181→    />
+   182→   182→  )
+   183→   183→}
+   184→   184→
+   185→   185→/* ───────────────────────── COMING SOON ───────────────────────── */
+   186→   186→
+   187→   187→function ComingSoon() {
+   188→   188→  const { theme } = useTheme()
+   189→   189→  const [visible, setVisible] = useState(false)
+   190→   190→  const s = v(theme)
+   191→   191→  const isDark = theme === 'dark'
+   192→   192→
+   193→   193→  const glow = isDark
+   194→   194→    ? '0 0 40px rgba(255,255,255,0.15), 0 0 80px rgba(255,255,255,0.08)'
+   195→   195→    : '0 0 40px rgba(0,0,0,0.12), 0 0 80px rgba(0,0,0,0.06)'
+   196→   196→
+   197→   197→  useEffect(() => {
+   198→   198→    const timer = setTimeout(() => setVisible(true), 100)
+   199→   199→    return () => clearTimeout(timer)
+   200→   200→  }, [])
+   201→   201→
+   202→   202→  return (
+   203→   203→    <main className="min-h-screen flex flex-col items-center justify-center px-6 relative transition-colors duration-500"
+   204→   204→      style={{ background: s.bg, color: s.text }}
+   205→   205→    >
+   206→   206→      <NordicForest color={s.forest} />
+   207→   207→      <Grain />
+   208→   208→
+   209→   209→      <div className={`flex flex-col items-center transition-all duration-[2000ms] ease-out relative ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+   210→   210→        style={{ zIndex: 2 }}
+   211→   211→      >
+   212→   212→        <h1
+   213→   213→          className="tracking-[0.35em] uppercase text-center select-none"
+   214→   214→          style={{
+   215→   215→            fontSize: 'clamp(1.25rem, 3.5vw, 2.25rem)',
+   216→   216→            fontWeight: 300,
+   217→   217→            letterSpacing: '0.35em',
+   218→   218→            lineHeight: 1.4,
+   219→   219→            textShadow: glow,
+   220→   220→          }}
+   221→   221→        >
+   222→   222→          Upstream<br />Institute
+   223→   223→        </h1>
+   224→   224→
+   225→   225→        <div className="w-12 my-8" style={{ height: '1px', background: s.divider }} />
+   226→   226→
+   227→   227→        <p className="text-center max-w-xs"
+   228→   228→          style={{ color: s.muted, fontSize: 'clamp(0.7rem, 1.2vw, 0.8125rem)', fontWeight: 300, letterSpacing: '0.08em', lineHeight: 1.7 }}
+   229→   229→        >
+   230→   230→          Reimagining capital stewardship<br />for intergenerational prosperity.
+   231→   231→        </p>
+   232→   232→
+   233→   233→        <div className="mt-10 flex items-center gap-2">
+   234→   234→          <span className="inline-block w-1.5 h-1.5 rounded-full"
+   235→   235→            style={{ background: s.text, animation: 'pulse 2.5s ease-in-out infinite' }} />
+   236→   236→          <span className="uppercase"
+   237→   237→            style={{ color: s.faint, fontSize: '0.625rem', letterSpacing: '0.2em', fontWeight: 400 }}
+   238→   238→          >
+   239→   239→            Helsinki, 2026
+   240→   240→          </span>
+   241→   241→        </div>
+   242→   242→
+   243→   243→        <a href="#white-paper"
+   244→   244→          className="mt-8 transition-colors duration-700"
+   245→   245→          style={{ color: s.faint, fontSize: '0.6875rem', letterSpacing: '0.06em', fontWeight: 300 }}
+   246→   246→          onMouseEnter={e => (e.currentTarget.style.color = s.text)}
+   247→   247→          onMouseLeave={e => (e.currentTarget.style.color = s.faint)}
+   248→   248→        >
+   249→   249→          hello@upstreaminstitute.org
+   250→   250→        </a>
+   251→   251→
+   252→   252→        <a href="#white-paper"
+   253→   253→          className="mt-5 flex items-center gap-2 group transition-colors duration-700"
+   254→   254→          style={{ color: s.ghost, fontSize: '0.625rem', letterSpacing: '0.15em', fontWeight: 300, textTransform: 'uppercase' as const }}
+   255→   255→          onMouseEnter={e => (e.currentTarget.style.color = s.muted)}
+   256→   256→          onMouseLeave={e => (e.currentTarget.style.color = s.ghost)}
+   257→   257→        >
+   258→   258→          <span className="inline-block transition-colors duration-700" style={{ width: '1rem', height: '1px', background: s.ghost }} />
+   259→   259→          Read White Paper
+   260→   260→        </a>
+   261→   261→      </div>
+   262→   262→
+   263→   263→      <div className="absolute bottom-6" style={{ zIndex: 2 }}>
+   264→   264→        <span style={{ color: s.ghost, fontSize: '0.5rem', letterSpacing: '0.15em', fontWeight: 300 }}>&reg;</span>
+   265→   265→      </div>
+   266→   266→
+   267→   267→      <style jsx>{`
+   268→   268→        @keyframes pulse {
+   269→   269→          0%, 100% { opacity: 0.4; }
+   270→   270→          50% { opacity: 1; }
+   271→   271→        }
+   272→   272→      `}</style>
+   273→   273→    </main>
+   274→   274→  )
+   275→   275→}
+   276→   276→
+   277→   277→/* ───────────────────────── WHITE PAPER ───────────────────────── */
+   278→   278→
+   279→   279→const TOC = [
+   280→   280→  { id: 'authors', label: 'About the Authors' },
+   281→   281→  { id: 'introduction', label: 'Introduction: The Crisis of Thought' },
+   282→   282→  { id: 'landscape', label: 'The Intellectual Landscape' },
+   283→   283→  { id: 'premises', label: 'Challenging the Fundamental Premises' },
+   284→   284→  { id: 'operations', label: 'How We Operate' },
+   285→   285→  { id: 'endowment', label: 'A New Standard for Endowment Returns' },
+   286→   286→  { id: 'conclusion', label: 'Conclusion' },
+   287→   287→]
+   288→   288→
+   289→   289→function WhitePaper() {
+   290→   290→  const { theme } = useTheme()
+   291→   291→  const [ready, setReady] = useState(false)
+   292→   292→  const s = v(theme)
+   293→   293→
+   294→   294→  useEffect(() => {
+   295→   295→    window.scrollTo(0, 0)
+   296→   296→    const timer = setTimeout(() => setReady(true), 50)
+   297→   297→    return () => clearTimeout(timer)
+   298→   298→  }, [])
+   299→   299→
+   300→   300→  return (
+   301→   301→    <div
+   302→   302→      className={`min-h-screen transition-colors duration-500 ${ready ? 'opacity-100' : 'opacity-0'}`}
+   303→   303→      style={{ transitionProperty: 'opacity, background-color, color', background: s.bg, color: s.text }}
+   304→   304→    >
+   305→   305→      {/* Nav */}
+   306→   306→      <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-6 md:px-12 py-5"
+   307→   307→        style={{ background: s.navBg, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 100 }}
+   308→   308→      >
+   309→   309→        <a href="#"
+   310→   310→          className="transition-colors duration-500"
+   311→   311→          style={{ color: s.text, fontSize: '0.6875rem', letterSpacing: '0.2em', fontWeight: 600, textTransform: 'uppercase' as const }}
+   312→   312→        >
+   313→   313→          Upstream Institute
+   314→   314→        </a>
+   315→   315→        <a href="#"
+   316→   316→          className="transition-colors duration-500"
+   317→   317→          style={{ color: s.faint, fontSize: '0.625rem', letterSpacing: '0.12em', fontWeight: 400 }}
+   318→   318→          onMouseEnter={e => (e.currentTarget.style.color = s.text)}
+   319→   319→          onMouseLeave={e => (e.currentTarget.style.color = s.faint)}
+   320→   320→        >
+   321→   321→          Back
+   322→   322→        </a>
+   323→   323→      </nav>
+   324→   324→
+   325→   325→      {/* Hero */}
+   326→   326→      <header className="pt-32 pb-12 md:pt-40 md:pb-16 px-6 md:px-12 max-w-3xl mx-auto text-center">
+   327→   327→        <p className="uppercase mb-8"
+   328→   328→          style={{ color: s.muted, fontSize: '0.625rem', letterSpacing: '0.3em', fontWeight: 600 }}
+   329→   329→        >
+   330→   330→          White Paper
+   331→   331→        </p>
+   332→   332→        <h1 style={{ fontSize: 'clamp(1.75rem, 4.5vw, 3.25rem)', fontWeight: 700, letterSpacing: '-0.01em', lineHeight: 1.2 }}>
+   333→   333→          Thinking Upstream
+   334→   334→        </h1>
+   335→   335→        <p className="mt-5 max-w-lg mx-auto"
+   336→   336→          style={{ color: s.muted, fontSize: 'clamp(0.8125rem, 1.3vw, 1rem)', fontWeight: 300, letterSpacing: '0.01em', lineHeight: 1.65 }}
+   337→   337→        >
+   338→   338→          A New School of Thought for Finance, Policy, and Planetary Regeneration
+   339→   339→        </p>
+   340→   340→        <div className="flex items-center justify-center gap-6 mt-10 flex-wrap"
+   341→   341→          style={{ fontSize: '0.6875rem', fontWeight: 400, letterSpacing: '0.04em', lineHeight: 1.6, color: s.muted }}
+   342→   342→        >
+   343→   343→          <span>Dr. Paavo Pylkk&auml;nen</span>
+   344→   344→          <span style={{ color: s.ghost }}>|</span>
+   345→   345→          <span>Dr. Elina Pylkk&auml;nen</span>
+   346→   346→          <span style={{ color: s.ghost }}>|</span>
+   347→   347→          <span>Sagar Tandon</span>
+   348→   348→        </div>
+   349→   349→        <p className="mt-3" style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.04em' }}>
+   350→   350→          Helsinki, Finland &middot; June 2026
+   351→   351→        </p>
+   352→   352→      </header>
+   353→   353→
+   354→   354→      {/* Table of Contents */}
+   355→   355→      <div className="max-w-2xl mx-auto px-6 md:px-12 mb-16">
+   356→   356→        <div style={{ borderTop: `1px solid ${s.divider}`, borderBottom: `1px solid ${s.divider}` }} className="py-8">
+   357→   357→          <p className="uppercase mb-5" style={{ color: s.faint, fontSize: '0.625rem', letterSpacing: '0.2em', fontWeight: 600 }}>Index</p>
+   358→   358→          <ol className="space-y-3">
+   359→   359→            {TOC.map((item, i) => (
+   360→   360→              <li key={item.id}>
+   361→   361→                <a href={`#${item.id}`}
+   362→   362→                  className="transition-colors duration-300"
+   363→   363→                  style={{ color: s.muted, fontSize: '0.8125rem', fontWeight: 400, letterSpacing: '0.02em', lineHeight: 1.5 }}
+   364→   364→                  onMouseEnter={e => (e.currentTarget.style.color = s.text)}
+   365→   365→                  onMouseLeave={e => (e.currentTarget.style.color = s.muted)}
+   366→   366→                >
+   367→   367→                  <span style={{ color: s.faint, marginRight: '0.75rem', fontSize: '0.75rem' }}>{String(i + 1).padStart(2, '0')}</span>
+   368→   368→                  {item.label}
+   369→   369→                </a>
+   370→   370→              </li>
+   371→   371→            ))}
+   372→   372→          </ol>
+   373→   373→        </div>
+   374→   374→      </div>
+   375→   375→
+   376→   376→      {/* Body */}
+   377→   377→      <article
+   378→   378→        className="max-w-2xl mx-auto px-6 md:px-12 pb-32"
+   379→   379→        style={{ fontSize: 'clamp(0.9375rem, 1.15vw, 1.0625rem)', fontWeight: 300, lineHeight: 1.85, color: s.text }}
+   380→   380→      >
+   381→   381→        <WPSection id="authors" title="About the Authors">
+   382→   382→          <WPAuthor name="Dr. Paavo Pylkk&auml;nen" role="Philosophical Director">
+   383→   383→            Dr. Pylkk&auml;nen is a distinguished philosopher whose decades of work on physicist David Bohm&rsquo;s theories of quantum physics and consciousness provide the ontological foundation for the Upstream Institute. He has extensively researched the concept of the &ldquo;Implicate Order&rdquo;&mdash;the view that reality is an unbroken, flowing whole rather than a collection of isolated parts. At the Institute, Dr. Pylkk&auml;nen directs intellectual coherence, ensuring that all research, policy design, and capital deployment transcend the limitations of fragmented, mechanical thought.
+   384→   384→          </WPAuthor>
+   385→   385→          <WPAuthor name="Dr. Elina Pylkk&auml;nen" role="Social Policy Director">
+   386→   386→            Dr. Pylkk&auml;nen is a distinguished economist currently serving as Under-Secretary of State at Finland&rsquo;s Ministry of Economic Affairs and Employment. She holds a PhD in Economics and has previously served as Director of the Labor Institute for Economic Research (LABORE), Senior Economist at the OECD in Paris, and Visiting Scholar at Stanford University. Dr. Pylkk&auml;nen brings unparalleled expertise in labor markets, taxation, and social policy design. She leads the Upstream Nordic Social Policy Research Lab, translating philosophical frameworks into rigorous, population-scale economic interventions.
+   387→   387→          </WPAuthor>
+   388→   388→          <WPAuthor name="Sagar Tandon" role="Impact Finance Director">
+   389→   389→            Sagar Tandon is a Partner at Beyond Impact VC, investing in industrial biotech and climate-bio companies globally. He also advises the Society for Cell Agriculture APAC and supports several climate initiatives, including WePlanet.org and Atlan.fi, EIT, Good Food Institute, Big Ideas Ventures, Fashion For Good, and Rethinking Materials as a strategic advisor and mentor. A 2X Global Forum member, he promotes gender and climate-smart impact investing. Currently, he serves as an honorary advisory board member of EIT Community New European Bauhaus. In his investing career, he has led investments in more than 25+ startups and launched 3 funds from emerging markets - India and Southeast Asia to developed markets (Europe, the US, and East Asia). He has built and run an accelerator for aspiring female fund managers, supported by an Australian government-funded project, Frontier Lab Asia, and Gray Matters Capital. He writes a substack newsletter (https://firstfollowers.substack.com/) with more than 4,000 subscribers about venture capital, private markets, impact investing, venture studios, and more.
+   390→   390→          </WPAuthor>
+   391→   391→        </WPSection>
+   392→   392→
+   393→   393→        <WPSection id="introduction" title="Introduction: The Crisis of Thought">
+   394→   394→          <p>The physicist and philosopher David Bohm argued that humanity&rsquo;s deepest crises are not primarily technical or political&mdash;they are crises of &ldquo;thought.&rdquo; He observed that thought is a system: fragments of the past that we project onto the present, mistakenly believing we are engaging directly with reality.</p>
+   395→   395→          <p>Modern economics is a profound symptom of this crisis. It is built on a classical, Newtonian paradigm that treats the economy as a machine made of isolated parts&mdash;firms, consumers, resources&mdash;that can be optimized independently. This mechanical worldview has generated unprecedented technological advancement, but it has done so by treating social fragmentation and ecological degradation as acceptable externalities.</p>
+   396→   396→          <p>To solve the systemic crises of the 21st century, we cannot simply optimize the old machine. We must change the nature of the thought that built it.</p>
+   397→   397→          <p>The Upstream Institute exists to generate an entirely new school of thought. We are not merely a think tank producing papers, nor are we a traditional investment fund. We are an integrated ecosystem uniting deep quantum philosophy, population-scale policy research, and the real-world execution of capital. We exist to fundamentally reimagine the roles of the state, the financier, the individual, and nature.</p>
+   398→   398→        </WPSection>
+   399→   399→
+   400→   400→        <WPSection id="landscape" title="The Intellectual Landscape: Why Existing Institutions Fail">
+   401→   401→          <p>The global landscape is saturated with think tanks, research institutes, and impact funds. Yet, none possess the philosophical foundation or the structural integration required to shift economic paradigms.</p>
+   402→   402→          <WPSubSection title="The Orthodox Free-Market Tanks (e.g., The Hoover Institution, Cato Institute)">
+   403→   403→            <p>These institutions operate firmly within the Newtonian paradigm. They view the economy as a mechanistic system of independent agents. Their policy prescriptions&mdash;deregulation, privatization, minimal state intervention&mdash;optimize for aggregate growth while treating ecological and social decay as the cost of doing business. They challenge the role of the state, but only to shrink it, never to reimagine its fundamental purpose in an entangled world.</p>
+   404→   404→          </WPSubSection>
+   405→   405→          <WPSubSection title="The Centrist Reform Tanks (e.g., The Brookings Institution)">
+   406→   406→            <p>Centrist institutions attempt to patch the mechanical model. They advocate for moderate redistribution, human capital investment, and targeted regulations. However, they still operate entirely within the confines of neoclassical economics. They seek to make extraction more palatable, not to replace extraction with regeneration. Their research influences policy at the margins, but it leaves the foundational premises of modern capitalism untouched.</p>
+   407→   407→          </WPSubSection>
+   408→   408→          <WPSubSection title="The ESG and Impact Investment Consensus">
+   409→   409→            <p>The financial sector has responded to systemic crises with &ldquo;ESG&rdquo; and &ldquo;impact investing.&rdquo; However, as Bohm would note, this is often fragmented thought in action. ESG largely involves applying a thin ethical veneer to the exact same extractive capital structures. Impact investing frequently accepts a false dichotomy: that doing good requires sacrificing financial return. Furthermore, they lack a rigorous philosophical arm; they deploy capital without challenging the legal and ontological frameworks that make extraction possible in the first place.</p>
+   410→   410→          </WPSubSection>
+   411→   411→          <WPSubSection title="The Upstream Differentiator">
+   412→   412→            <p>The Upstream Institute is the first institution to fuse deep philosophy, rigorous policy research, and an executing endowment into a single entity. We do not write papers to be read; we write theories to be codified into financial products and state policy. We do not invest to generate alpha; we invest to prove that regeneration is the highest form of yield.</p>
+   413→   413→          </WPSubSection>
+   414→   414→        </WPSection>
+   415→   415→
+   416→   416→        <WPSection id="premises" title="Challenging the Fundamental Premises">
+   417→   417→          <p>The Upstream Institute is built to systematically dismantle and rebuild the foundational roles of our modern economy. We challenge four basic premises:</p>
+   418→   418→          <WPPremise number="1" label="The Role of the State"
+   419→   419→            oldPremise="The state is either an intrusive regulator to be minimized, or a night-watchman protecting property rights."
+   420→   420→            newPremise="The state is a Systemic Architect. Its role is not to correct market failures after the fact, but to design the legal, administrative, and infrastructural &ldquo;soil&rdquo; in which regenerative capital grows."
+   421→   421→          />
+   422→   422→          <WPPremise number="2" label="The Role of the Financier"
+   423→   423→            oldPremise="The financier is a passive allocator of capital seeking risk-adjusted financial returns, detached from the real-world ripple effects of their allocations."
+   424→   424→            newPremise="The financier is a Systemic Designer. Drawing on Bohm&rsquo;s concept of &ldquo;active information,&rdquo; we understand that money does not merely represent value&mdash;it shapes the material conditions of human life. Financiers must be structurally accountable for the social and ecological ripples of their capital."
+   425→   425→          />
+   426→   426→          <WPPremise number="3" label="The Role of People"
+   427→   427→            oldPremise="People are &ldquo;human capital&rdquo; or &ldquo;consumers&rdquo;&mdash;isolated economic units to be optimized."
+   428→   428→            newPremise="Drawing on the Japanese philosophy of Gapponism, people are entangled co-creators. Economic equality is not a luxury; it is a moral prerequisite. Without baseline security, individuals cannot participate in the co-creation of a thriving society."
+   429→   429→          />
+   430→   430→          <WPPremise number="4" label="The Role of Nature"
+   431→   431→            oldPremise="Nature is an externality, a bottomless sink for waste, or a passive asset class to be priced via carbon offsets."
+   432→   432→            newPremise="Nature is the foundational substrate of all capital. If nature degrades, capital degrades. Financial products must be structurally tethered to ecological regeneration, not abstract accounting tricks."
+   433→   433→          />
+   434→   434→        </WPSection>
+   435→   435→
+   436→   436→        <WPSection id="operations" title="How We Operate: Features and Functions">
+   437→   437→          <p>To manifest this new school of thought, the Upstream Institute operates through three interconnected arms. This is not a loose coalition; it is a unified feedback loop where theory informs capital, and capital generates data that refines theory.</p>
+   438→   438→          <WPSubSection title="Arm 1: The Upstream Think Tank (Tool Builders)">
+   439→   439→            <p>Traditional think tanks produce opinion pieces and policy briefs. The Upstream Think Tank produces <em>tools</em>.</p>
+   440→   440→            <ul>
+   441→   441→              <li><strong>The &ldquo;Terms for Humanity&rdquo; Library:</strong> We curate a free, global repository of legal clauses, term sheets, and governance templates that legally embed stakeholder voice and ecological limits into investment agreements.</li>
+   442→   442→              <li><strong>Humanized Finance Playbooks:</strong> Open-source architectural blueprints for Industrial Foundation 2.0, Serial Steward Models, and Impact-Aligned Executive Compensation.</li>
+   443→   443→              <li><strong>Philosophical Translation:</strong> We translate complex quantum ontologies and ethical frameworks into rigorous, actionable doctrines for policymakers and capitalists.</li>
+   444→   444→            </ul>
+   445→   445→          </WPSubSection>
+   446→   446→          <WPSubSection title="Arm 2: The Nordic Social Policy Research Lab (Evidence Generators)">
+   447→   447→            <p>We do not speculate about what works; we prove it. Leveraging Finland&rsquo;s unique administrative infrastructure, the Lab treats the nation as a living laboratory.</p>
+   448→   448→            <ul>
+   449→   449→              <li><strong>Population-Scale Testing:</strong> We co-design interventions with the Finnish government&mdash;focusing on child poverty, homelessness, and social connection&mdash;and track the macroeconomic results across entire demographics over time.</li>
+   450→   450→              <li><strong>Proving Entanglement:</strong> The Lab&rsquo;s primary function is to generate irrefutable data proving that social equity and economic dynamism are not opposed, but mathematically entangled.</li>
+   451→   451→            </ul>
+   452→   452→          </WPSubSection>
+   453→   453→          <WPSubSection title="Arm 3: The Upstream Endowment (The Execution Arm)">
+   454→   454→            <p>We do not just advocate for a new economy; we build it. The Endowment acts as an internal venture studio for financial products. We deploy permanent capital into structures that generate both financial yield and measurable healing.</p>
+   455→   455→            <ul>
+   456→   456→              <li><strong>SME Patient Capital Vehicles:</strong> Debt and equity hybrids that provide permanent capital to small and medium enterprises, prioritizing community resilience over extractive buyouts.</li>
+   457→   457→              <li><strong>Child Poverty Impact Bonds:</strong> Outcomes-based financial instruments that direct private capital toward social interventions, paying returns strictly based on measured, verified reductions in child poverty.</li>
+   458→   458→              <li><strong>Climate and Biodiversity Outcomes Bonds:</strong> Instruments that pay returns only when tangible ecosystem healing is scientifically verified, treating nature as a primary stakeholder.</li>
+   459→   459→            </ul>
+   460→   460→          </WPSubSection>
+   461→   461→        </WPSection>
+   462→   462→
+   463→   463→        <WPSection id="endowment" title="A New Standard for Endowment Returns">
+   464→   464→          <p>Traditional endowments often target high nominal returns by heavily weighting illiquid venture capital and leveraged buyouts&mdash;strategies that frequently rely on extraction and the externalization of social costs.</p>
+   465→   465→          <p>The Upstream Endowment operates on a new thesis: <em>systemic risk is massively underpriced.</em> Climate disaster, social polarization, and supply chain collapse are not externalities; they are fundamental financial risks.</p>
+   466→   466→          <p>By investing exclusively in regenerative structures&mdash;evergreen funds, outcomes-based bonds, and patient SME financing&mdash;we demonstrate that structurally safe, ethical capital deployment generates resilient, sustainable yield over a generational horizon. We reject the false dichotomy that doing good requires losing money. By pricing in true systemic risk, we prove that regeneration is the most prudent long-term investment strategy.</p>
+   467→   467→        </WPSection>
+   468→   468→
+   469→   469→        <WPSection id="conclusion" title="Conclusion: Beyond Fragmented Thought">
+   470→   470→          <p>As David Bohm warned, we cannot solve our systemic crises using the same fragmented thought that created them. The traditional ecosystem of think tanks and financial institutions is endlessly rearranging the deck chairs on a sinking ship. They debate the mechanics of an engine that is fundamentally destroying the planet.</p>
+   471→   471→          <p>The Upstream Institute exists to build an entirely new engine.</p>
+   472→   472→          <p>By rooting the role of finance and economy in quantum philosophy, by producing rigorous new research for policymakers and capitalists, and by physically building the financial products&mdash;from SME financing to child poverty bonds&mdash;that execute this vision, we bypass the limits of fragmented thought.</p>
+   473→   473→          <p>We do not just analyze the system. We build the tools to replace it.</p>
+   474→   474→          <p style={{ color: s.muted, fontStyle: 'italic' }}>
+   475→   475→            From Finland, we invite the world to think upstream.
+   476→   476→          </p>
+   477→   477→        </WPSection>
+   478→   478→
+   479→   479→        {/* Footer */}
+   480→   480→        <footer className="mt-24 pt-8" style={{ borderTop: `1px solid ${s.divider}` }}>
+   481→   481→          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+   482→   482→            <div>
+   483→   483→              <p style={{ color: s.text, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.06em' }}>
+   484→   484→                The Upstream Institute
+   485→   485→              </p>
+   486→   486→              <p style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300 }}>
+   487→   487→                Helsinki, Finland
+   488→   488→              </p>
+   489→   489→            </div>
+   490→   490→            <a href="mailto:hello@upstreaminstitute.org"
+   491→   491→              className="transition-colors duration-500"
+   492→   492→              style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.03em' }}
+   493→   493→              onMouseEnter={e => (e.currentTarget.style.color = s.text)}
+   494→   494→              onMouseLeave={e => (e.currentTarget.style.color = s.faint)}
+   495→   495→            >
+   496→   496→              hello@upstreaminstitute.org
+   497→   497→            </a>
+   498→   498→          </div>
+   499→   499→        </footer>
+   500→   500→      </article>
+   501→   501→    </div>
+   502→   502→  )
+   503→   503→}
+   504→   504→
+   505→   505→/* ───────────────────────── WHITE PAPER COMPONENTS ───────────────────────── */
+   506→   506→
+   507→   507→function WPSection({ id, title, children }: { id: string; title: string; children: React.ReactNode }) {
+   508→   508→  return (
+   509→   509→    <section id={id} className="mb-16 md:mb-20">
+   510→   510→      <h2 className="mb-8" style={{ fontSize: 'clamp(1.125rem, 2vw, 1.375rem)', fontWeight: 700, letterSpacing: '0.02em', lineHeight: 1.35 }}>
+   511→   511→        {title}
+   512→   512→      </h2>
+   513→   513→      <div className="space-y-5">{children}</div>
+   514→   514→    </section>
+   515→   515→  )
+   516→   516→}
+   517→   517→
+   518→   518→function WPSubSection({ title, children }: { title: string; children: React.ReactNode }) {
+   519→   519→  const { theme } = useTheme()
+   520→   520→  const s = v(theme)
+   521→   521→  return (
+   522→   522→    <div className="mb-8 last:mb-0">
+   523→   523→      <h3 className="mb-3" style={{ fontSize: 'clamp(0.9375rem, 1.3vw, 1.0625rem)', fontWeight: 600, letterSpacing: '0.01em', lineHeight: 1.45 }}>
+   524→   524→        {title}
+   525→   525→      </h3>
+   526→   526→      <div className="space-y-4">{children}</div>
+   527→   527→    </div>
+   528→   528→  )
+   529→   529→}
+   530→   530→
+   531→   531→function WPAuthor({ name, role, children }: { name: string; role: string; children: React.ReactNode }) {
+   532→   532→  const { theme } = useTheme()
+   533→   533→  const s = v(theme)
+   534→   534→  return (
+   535→   535→    <div className="mb-8 last:mb-0">
+   536→   536→      <p style={{ fontWeight: 600, lineHeight: 1.5 }}>
+   537→   537→        <span dangerouslySetInnerHTML={{ __html: name }} />
+   538→   538→        <span className="ml-2" style={{ color: s.faint, fontSize: '0.875em' }}>| {role}</span>
+   539→   539→      </p>
+   540→   540→      <p className="mt-2">{children}</p>
+   541→   541→    </div>
+   542→   542→  )
+   543→   543→}
+   544→   544→
+   545→   545→function WPPremise({ number, label, oldPremise, newPremise }: {
+   546→   546→  number: string; label: string; oldPremise: string; newPremise: string
+   547→   547→}) {
+   548→   548→  const { theme } = useTheme()
+   549→   549→  const s = v(theme)
+   550→   550→  return (
+   551→   551→    <div className="my-8 pl-5" style={{ borderLeft: `1px solid ${s.divider}` }}>
+   552→   552→      <p className="mb-3" style={{ fontWeight: 600, lineHeight: 1.4 }}>
+   553→   553→        <span className="mr-2" style={{ color: s.faint }}>{number}.</span>
+   554→   554→        {label}
+   555→   555→      </p>
+   556→   556→      <p className="mb-2" style={{ color: s.muted, fontSize: '0.9em' }}>
+   557→   557→        <span className="uppercase" style={{ color: s.faint, fontSize: '0.625rem', letterSpacing: '0.12em', fontWeight: 600 }}>The Old Premise: </span>
+   558→   558→        <span dangerouslySetInnerHTML={{ __html: oldPremise }} />
+   559→   559→      </p>
+   560→   560→      <p>
+   561→   561→        <span className="uppercase" style={{ color: s.muted, fontSize: '0.625rem', letterSpacing: '0.12em', fontWeight: 600 }}>The Upstream Premise: </span>
+   562→   562→        <span dangerouslySetInnerHTML={{ __html: newPremise }} />
+   563→   563→      </p>
+   564→   564→    </div>
+   565→   565→  )
+   566→   566→}
+   567→   567→
+   568→   568→/* ───────────────────────── ROUTER ───────────────────────── */
+   569→   569→
+   570→   570→export default function Home() {
+   571→   571→  const [view, setView] = useState<'landing' | 'white-paper'>(() =>
+   572→   572→    typeof window !== 'undefined' && window.location.hash === '#white-paper' ? 'white-paper' : 'landing'
+   573→   573→  )
+   574→   574→
+   575→   575→  useEffect(() => {
+   576→   576→    const onHashChange = () => {
+   577→   577→      setView(window.location.hash === '#white-paper' ? 'white-paper' : 'landing')
+   578→   578→    }
+   579→   579→    window.addEventListener('hashchange', onHashChange)
+   580→   580→    return () => window.removeEventListener('hashchange', onHashChange)
+   581→   581→  }, [])
+   582→   582→
+   583→   583→  return (
+   584→   584→    <ThemeProvider>
+   585→   585→      <ThemeToggle />
+   586→   586→      {view === 'white-paper' ? <WhitePaper /> : <ComingSoon />}
+   587→   587→    </ThemeProvider>
+   588→   588→  )
+   589→   589→}
+   590→   590→
