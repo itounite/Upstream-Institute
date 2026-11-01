@@ -314,7 +314,8 @@ const TOC = [
   { id: 'esg-lip-service', label: 'ESG: Lip Service' },
   { id: 'bohm-implicate', label: 'Bohm\'s Implicate Order' },
   { id: 'think-upstream', label: 'Think Upstream' },
-  { id: 'thought-initiators', label: 'About the Author' },
+  { id: 'physical-space', label: 'The Physical Space: Upstream and Downstream' },
+  { id: 'thought-initiators', label: 'About the Authors' },
 ]
 
 function WhitePaper() {
@@ -386,10 +387,14 @@ function WhitePaper() {
         >
           A New School of Thought for Finance, Policy, Planetary Regeneration, Science, and Technology
         </p>
-        <div className="flex items-center justify-center mt-8 sm:mt-10"
+        <div className="flex items-center justify-center gap-3 sm:gap-6 mt-8 sm:mt-10 flex-wrap"
           style={{ fontSize: '0.6875rem', fontWeight: 400, letterSpacing: '0.04em', lineHeight: 1.6, color: s.muted }}
         >
           <span className="whitespace-nowrap">Sagar Tandon</span>
+          <span style={{ color: s.ghost }}>|</span>
+          <span className="whitespace-nowrap">Paavo Pylkk&auml;nen</span>
+          <span style={{ color: s.ghost }}>|</span>
+          <span className="whitespace-nowrap">Elina Pylkk&auml;nen</span>
         </div>
         <p className="mt-3" style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.04em' }}>
           Helsinki, Finland
@@ -502,15 +507,49 @@ function WhitePaper() {
           </WPSubSection>
 
           <WPChart src="/charts/causal-chain.png" alt="Full Causal Chain: From Problem to Solution" />
-          <p style={{ color: s.muted, fontStyle: 'italic' }}>
-            From Finland, we invite the world to think upstream.
-          </p>
         </WPSection>
 
-        {/* Author - at the END */}
-        <WPSection id="thought-initiators" title="About the Author">
+        <WPSection id="physical-space" title="The Physical Space: Upstream and Downstream">
+          <p>The physical space we have acquired can be divided into two parts:</p>
+
+          <WPSubSection title="Upstream Lab - Think">
+            <p>
+              Think &amp; Dialogue Forum will run workshops in cohorts of 15-25 people, wherein Paavo will focus on using principles of David Bohm to conduct dialogue exercises to allow us to activate our thoughts and help us decouple from our biases and memory so that we can start the thinking process from scratch, from zero, from singularity. Additionally, Paavo will use other great philosophers&rsquo; and scientists&rsquo; works to activate the thinking process, as David Bohm pointed out that thoughts are the root cause of all our problems.
+            </p>
+            <p>
+              Ideal participants will be philanthropists, large capital owners, corporate C-suite leaders, economists, scientists, and politicians.
+            </p>
+            <p>
+              The Upstream Lab is critical before anything we do because we have become slaves to thought; thought is like fire: it is a good servant but a bad master.
+            </p>
+          </WPSubSection>
+
+          <WPSubSection title="Downstream Lab - Do">
+            <p>
+              Sagar and Elina will complement Paavo to bring back from the upstream thinking process to downstream, practical issues, wherein, with new, fresh thoughts and thinking, the participants will delve into working on potential solutions and try to connect the dots with the real-world issues that are being faced by society, the environment, and nature at large. They will also explore how we can push the boundaries of science and technology in ways that serve humanity rather than become a destructive force.
+            </p>
+            <p>
+              We can&rsquo;t mindlessly have policies, science, and technology advancement without upstream thinking, as Bohm rightly pointed out in the book, <em>Changing Consciousness</em>:
+            </p>
+            <blockquote className="my-6 px-4 text-center italic" style={{ color: s.text, fontStyle: 'italic' }}>
+              &ldquo;The more we automate industry, the more we isolate people, and the more routine, on the whole, people&rsquo;s work becomes, producing less satisfaction for people in their work and less meaning in their lives.&rdquo;
+            </blockquote>
+            <p className="text-center font-bold mt-6" style={{ fontWeight: 700, color: s.text }}>
+              From Finland, we invite the world to think upstream.
+            </p>
+          </WPSubSection>
+        </WPSection>
+
+        {/* Authors - at the END */}
+        <WPSection id="thought-initiators" title="About the Authors">
           <WPAuthor name="Sagar Tandon">
             Sagar is an impact investor and capital allocator with more than a decade of global experience (emerging and developed markets) building impact funds, investing in more than 25+ impact ventures, and an active board member in three companies in the EU and one in South Korea.
+          </WPAuthor>
+          <WPAuthor name="Paavo Pylkk&auml;nen">
+            Paavo is a distinguished philosopher whose decades of work on physicist David Bohm&rsquo;s theories of quantum physics and consciousness provide the ontological foundation for the Upstream Institute. He has extensively researched the concept of the &ldquo;Implicate Order&rdquo;&mdash;the view that reality is an unbroken, flowing whole rather than a collection of isolated parts. At the Institute, Paavo directs intellectual coherence, ensuring that all research, policy design, and capital deployment transcend the limitations of fragmented, mechanical thought.
+          </WPAuthor>
+          <WPAuthor name="Elina Pylkk&auml;nen">
+            Elina is a distinguished economist currently serving as Under-Secretary of State at Finland&rsquo;s Ministry of Economic Affairs and Employment. She holds a PhD in Economics and has previously served as Director of the Labor Institute for Economic Research (LABORE), Senior Economist at the OECD in Paris, and Visiting Scholar at Stanford University. Elina brings unparalleled expertise in labor markets, taxation, and social policy design. She leads the Upstream Nordic Social Policy Research Lab, translating philosophical frameworks into rigorous, population-scale economic interventions.
           </WPAuthor>
         </WPSection>
 
