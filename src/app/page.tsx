@@ -501,14 +501,38 @@ function WhitePaper() {
         >
           A New School of Thought for Finance, Policy, Planetary Regeneration, Science, and Technology
         </p>
-        <div className="flex items-center justify-center gap-3 sm:gap-6 mt-8 sm:mt-10 flex-wrap"
-          style={{ fontSize: '0.6875rem', fontWeight: 400, letterSpacing: '0.04em', lineHeight: 1.6, color: s.muted }}
+        <div className="flex items-center justify-center gap-4 sm:gap-7 mt-8 sm:mt-10 flex-wrap"
+          style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.03em', lineHeight: 1.6, color: s.text }}
         >
-          <span className="whitespace-nowrap">Sagar Tandon</span>
-          <span style={{ color: s.ghost }}>|</span>
-          <span className="whitespace-nowrap">Paavo Pylkk&auml;nen</span>
-          <span style={{ color: s.ghost }}>|</span>
-          <span className="whitespace-nowrap">Elina Pylkk&auml;nen</span>
+          <div className="inline-flex items-center gap-2">
+            <img
+              src="/assets/aistudio/ST_-_Black_Japan_6033a488.png"
+              alt="Sagar Tandon"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-1 shadow-sm"
+              style={{ borderColor: s.divider }}
+            />
+            <span className="whitespace-nowrap">Sagar Tandon</span>
+          </div>
+          <span style={{ color: s.ghost }}>&bull;</span>
+          <div className="inline-flex items-center gap-2">
+            <img
+              src="/assets/aistudio/Paavo_02c44543.webp"
+              alt="Paavo Pylkkänen"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-1 shadow-sm"
+              style={{ borderColor: s.divider }}
+            />
+            <span className="whitespace-nowrap">Paavo Pylkk&auml;nen</span>
+          </div>
+          <span style={{ color: s.ghost }}>&bull;</span>
+          <div className="inline-flex items-center gap-2">
+            <img
+              src="/assets/aistudio/Elina_49532e99.webp"
+              alt="Elina Pylkkänen"
+              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-1 shadow-sm"
+              style={{ borderColor: s.divider }}
+            />
+            <span className="whitespace-nowrap">Elina Pylkk&auml;nen</span>
+          </div>
         </div>
         <p className="mt-3" style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.04em' }}>
           Helsinki, Finland
@@ -700,6 +724,7 @@ function WhitePaper() {
 
         <WPSection id="physical-space" title="The Physical Space: Upstream and Downstream">
           <p>The physical space we have acquired can be divided into two parts:</p>
+          <WPChart src="/assets/aistudio/Spatial_layout_b50cf1a8.png" alt="Spatial Layout: Upstream Lab (Think), The Bridge, and Downstream Lab (Do)" />
 
           <WPSubSection title="Upstream Lab - Think">
             <p>
@@ -730,17 +755,91 @@ function WhitePaper() {
         </WPSection>
 
         {/* Authors - at the END */}
-        <WPSection id="thought-initiators" title="About the Authors">
-          <WPAuthor name="Sagar Tandon">
-            Sagar is an impact investor and capital allocator with more than a decade of global experience (emerging and developed markets) building impact funds, investing in more than 25+ impact ventures, and an active board member in three companies in the EU and one in South Korea.
-          </WPAuthor>
-          <WPAuthor name="Paavo Pylkk&auml;nen">
-            Paavo is a distinguished philosopher whose decades of work on physicist David Bohm&rsquo;s theories of quantum physics and consciousness provide the ontological foundation for the Upstream Institute. He has extensively researched the concept of the &ldquo;Implicate Order&rdquo;&mdash;the view that reality is an unbroken, flowing whole rather than a collection of isolated parts. At the Institute, Paavo directs intellectual coherence, ensuring that all research, policy design, and capital deployment transcend the limitations of fragmented, mechanical thought.
-          </WPAuthor>
-          <WPAuthor name="Elina Pylkk&auml;nen">
-            Elina is a distinguished economist currently serving as Under-Secretary of State at Finland&rsquo;s Ministry of Economic Affairs and Employment. She holds a PhD in Economics and has previously served as Director of the Labor Institute for Economic Research (LABORE), Senior Economist at the OECD in Paris, and Visiting Scholar at Stanford University. Elina brings unparalleled expertise in labor markets, taxation, and social policy design. She leads the Upstream Nordic Social Policy Research Lab, translating philosophical frameworks into rigorous, population-scale economic interventions.
-          </WPAuthor>
-        </WPSection>
+        <section id="thought-initiators" className="mb-14 sm:mb-20 md:mb-24" style={{ scrollMarginTop: '5rem' }}>
+          <h2 className="mb-6 sm:mb-8" style={{ fontSize: 'clamp(1.125rem, 4vw, 1.375rem)', fontWeight: 700, letterSpacing: '0.02em', lineHeight: 1.35 }}>
+            About the Authors
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-6 -mx-2 sm:-mx-4 md:-mx-8 lg:-mx-12 items-stretch">
+            {/* Sagar Tandon */}
+            <div
+              className="p-5 sm:p-6 rounded-lg transition-all duration-300 flex flex-col justify-start"
+              style={{
+                border: `1px solid ${s.divider}`,
+                background: theme === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
+              }}
+            >
+              <div className="flex items-center gap-3.5 mb-4">
+                <img
+                  src="/assets/aistudio/ST_-_Black_Japan_6033a488.png"
+                  alt="Sagar Tandon"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover flex-shrink-0 shadow-md ring-2"
+                  style={{ borderColor: s.divider }}
+                />
+                <div>
+                  <h3 className="font-semibold text-base sm:text-lg leading-tight" style={{ color: s.text }}>
+                    Sagar Tandon
+                  </h3>
+                </div>
+              </div>
+              <p className="text-xs sm:text-[13px] leading-relaxed" style={{ color: s.muted }}>
+                Sagar is an impact investor and capital allocator with more than a decade of global experience (emerging and developed markets) building impact funds, investing in more than 25+ impact ventures, and an active board member in three companies in the EU and one in South Korea.
+              </p>
+            </div>
+
+            {/* Paavo Pylkkänen */}
+            <div
+              className="p-5 sm:p-6 rounded-lg transition-all duration-300 flex flex-col justify-start"
+              style={{
+                border: `1px solid ${s.divider}`,
+                background: theme === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
+              }}
+            >
+              <div className="flex items-center gap-3.5 mb-4">
+                <img
+                  src="/assets/aistudio/Paavo_02c44543.webp"
+                  alt="Paavo Pylkkänen"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover flex-shrink-0 shadow-md ring-2"
+                  style={{ borderColor: s.divider }}
+                />
+                <div>
+                  <h3 className="font-semibold text-base sm:text-lg leading-tight" style={{ color: s.text }}>
+                    Paavo Pylkk&auml;nen
+                  </h3>
+                </div>
+              </div>
+              <p className="text-xs sm:text-[13px] leading-relaxed" style={{ color: s.muted }}>
+                Paavo is a distinguished philosopher whose decades of work on physicist David Bohm&rsquo;s theories of quantum physics and consciousness provide the ontological foundation for the Upstream Institute. He has extensively researched the concept of the &ldquo;Implicate Order&rdquo;&mdash;the view that reality is an unbroken, flowing whole rather than a collection of isolated parts. At the Institute, Paavo directs intellectual coherence, ensuring that all research, policy design, and capital deployment transcend the limitations of fragmented, mechanical thought.
+              </p>
+            </div>
+
+            {/* Elina Pylkkänen */}
+            <div
+              className="p-5 sm:p-6 rounded-lg transition-all duration-300 flex flex-col justify-start"
+              style={{
+                border: `1px solid ${s.divider}`,
+                background: theme === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
+              }}
+            >
+              <div className="flex items-center gap-3.5 mb-4">
+                <img
+                  src="/assets/aistudio/Elina_49532e99.webp"
+                  alt="Elina Pylkkänen"
+                  className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover flex-shrink-0 shadow-md ring-2"
+                  style={{ borderColor: s.divider }}
+                />
+                <div>
+                  <h3 className="font-semibold text-base sm:text-lg leading-tight" style={{ color: s.text }}>
+                    Elina Pylkk&auml;nen
+                  </h3>
+                </div>
+              </div>
+              <p className="text-xs sm:text-[13px] leading-relaxed" style={{ color: s.muted }}>
+                Elina is a distinguished economist currently serving as Under-Secretary of State at Finland&rsquo;s Ministry of Economic Affairs and Employment. She holds a PhD in Economics and has previously served as Director of the Labor Institute for Economic Research (LABORE), Senior Economist at the OECD in Paris, and Visiting Scholar at Stanford University. Elina brings unparalleled expertise in labor markets, taxation, and social policy design. She leads the Upstream Nordic Social Policy Research Lab, translating philosophical frameworks into rigorous, population-scale economic interventions.
+              </p>
+            </div>
+          </div>
+        </section>
 
         {/* Bottom Back & Nav Buttons */}
         <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-4 no-print">
@@ -873,10 +972,10 @@ function WPAuthor({ name, role, children }: { name: string; role?: string; child
 /* ───────────────────────── THINK ROOM ───────────────────────── */
 
 const THINK_ROOM_AUTHORS = [
-  { id: 'all', name: 'All Authors' },
-  { id: 'sagar', name: 'Sagar Tandon' },
-  { id: 'paavo', name: 'Paavo Pylkk\u00e4nen' },
-  { id: 'elina', name: 'Elina Pylkk\u00e4nen' },
+  { id: 'all', name: 'All Authors', photo: null },
+  { id: 'sagar', name: 'Sagar Tandon', photo: '/assets/aistudio/ST_-_Black_Japan_6033a488.png' },
+  { id: 'paavo', name: 'Paavo Pylkk\u00e4nen', photo: '/assets/aistudio/Paavo_02c44543.webp' },
+  { id: 'elina', name: 'Elina Pylkk\u00e4nen', photo: '/assets/aistudio/Elina_49532e99.webp' },
 ]
 
 function ThinkRoom() {
@@ -961,6 +1060,13 @@ function ThinkRoom() {
                   }}
                 >
                   {isActive && <Check size={12} className="stroke-[2.5]" />}
+                  {author.photo && (
+                    <img
+                      src={author.photo}
+                      alt={author.name}
+                      className="w-4 h-4 rounded-full object-cover"
+                    />
+                  )}
                   <span>{author.name}</span>
                 </button>
               )

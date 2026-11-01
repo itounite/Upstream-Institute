@@ -4,9 +4,135 @@ export interface WhitePaperPdfOptions {
   onProgress?: (status: string) => void
 }
 
+interface LoadedImage {
+  dataUrl: string
+  width: number
+  height: number
+}
+
+/**
+ * Loads an image (PNG, JPG, WebP) via an off-screen canvas and returns
+ * a standard PNG data URL with its natural dimensions.
+ */
+function loadPngData(src: string): Promise<LoadedImage | null> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve(null)
+      return
+    }
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas')
+        const nw = img.naturalWidth || img.width || 800
+        const nh = img.naturalHeight || img.height || 600
+        canvas.width = nw
+        canvas.height = nh
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          resolve(null)
+          return
+        }
+        ctx.drawImage(img, 0, 0)
+        resolve({
+          dataUrl: canvas.toDataURL('image/png'),
+          width: nw,
+          height: nh,
+        })
+      } catch (err) {
+        console.warn('Canvas export failed for:', src, err)
+        resolve(null)
+      }
+    }
+    img.onerror = () => {
+      console.warn('Image failed to load:', src)
+      resolve(null)
+    }
+    img.src = src
+  })
+}
+
+/**
+ * Loads an image and clips it to a perfect circle for author portraits.
+ */
+function loadCircularAvatar(src: string, size = 180): Promise<string | null> {
+  return new Promise((resolve) => {
+    if (typeof window === 'undefined') {
+      resolve(null)
+      return
+    }
+    const img = new Image()
+    img.crossOrigin = 'anonymous'
+    img.onload = () => {
+      try {
+        const canvas = document.createElement('canvas')
+        canvas.width = size
+        canvas.height = size
+        const ctx = canvas.getContext('2d')
+        if (!ctx) {
+          resolve(null)
+          return
+        }
+        ctx.beginPath()
+        ctx.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2)
+        ctx.closePath()
+        ctx.clip()
+
+        const nw = img.naturalWidth || img.width
+        const nh = img.naturalHeight || img.height
+        const minDim = Math.min(nw, nh)
+        const sx = (nw - minDim) / 2
+        const sy = (nh - minDim) / 2
+        ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size)
+        resolve(canvas.toDataURL('image/png'))
+      } catch {
+        resolve(null)
+      }
+    }
+    img.onerror = () => resolve(null)
+    img.src = src
+  })
+}
+
 export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Promise<void> {
   const { onProgress } = options || {}
-  onProgress?.('Generating PDF...')
+  onProgress?.('Loading diagrams & portraits...')
+
+  // Pre-load all 10 diagrams and author portraits concurrently
+  const [
+    chartThought,
+    chartAgency,
+    chartDivorce,
+    chartInstitutions,
+    chartEsg,
+    chartThreeLegs,
+    chartLeg1,
+    chartLeg2,
+    chartLeg3,
+    chartCausal,
+    chartSpatial,
+    avatarSagar,
+    avatarPaavo,
+    avatarElina,
+  ] = await Promise.all([
+    loadPngData('/charts/thought-starting-point.png'),
+    loadPngData('/charts/losing-agency.png'),
+    loadPngData('/charts/great-divorce.png'),
+    loadPngData('/charts/institutions-fail.png'),
+    loadPngData('/charts/esg-lip-service.png'),
+    loadPngData('/charts/three-legs.png'),
+    loadPngData('/charts/leg1-think-dialogue.png'),
+    loadPngData('/charts/leg2-social-policy.png'),
+    loadPngData('/charts/leg3-capital-deployment.png'),
+    loadPngData('/charts/causal-chain.png'),
+    loadPngData('/assets/aistudio/Spatial_layout_b50cf1a8.png'),
+    loadCircularAvatar('/assets/aistudio/ST_-_Black_Japan_6033a488.png', 180),
+    loadCircularAvatar('/assets/aistudio/Paavo_02c44543.webp', 180),
+    loadCircularAvatar('/assets/aistudio/Elina_49532e99.webp', 180),
+  ])
+
+  onProgress?.('Formatting PDF document...')
 
   const doc = new jsPDF({
     orientation: 'portrait',
@@ -20,14 +146,6 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
   const contentWidth = pageWidth - margin * 2
   let y = margin
 
-  const checkPageBreak = (neededHeight: number) => {
-    if (y + neededHeight > pageHeight - margin) {
-      doc.addPage()
-      y = margin
-      addRunningHeader()
-    }
-  }
-
   const addRunningHeader = () => {
     doc.setFont('helvetica', 'normal')
     doc.setFontSize(8)
@@ -39,60 +157,86 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
     doc.line(margin, 14, pageWidth - margin, 14)
   }
 
+  const checkPageBreak = (neededHeight: number) => {
+    if (y + neededHeight > pageHeight - margin) {
+      doc.addPage()
+      y = margin
+      addRunningHeader()
+    }
+  }
+
   /* ────────── COVER / TITLE SECTION ────────── */
-  y = 35
+  y = 32
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(9)
   doc.setTextColor(110, 110, 110)
   doc.text('THINK UPSTREAM', margin, y)
-  y += 8
+  y += 7
 
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(26)
+  doc.setFontSize(24)
   doc.setTextColor(20, 20, 20)
   const titleLines = doc.splitTextToSize('Where Do Thoughts Come From?', contentWidth)
   doc.text(titleLines, margin, y)
-  y += titleLines.length * 10 + 2
+  y += titleLines.length * 9.5 + 2
 
   doc.setFont('helvetica', 'normal')
-  doc.setFontSize(12)
-  doc.setTextColor(80, 80, 80)
+  doc.setFontSize(11)
+  doc.setTextColor(70, 70, 70)
   const subLines = doc.splitTextToSize(
     'A New School of Thought for Finance, Policy, Planetary Regeneration, Science, and Technology',
     contentWidth
   )
   doc.text(subLines, margin, y)
-  y += subLines.length * 6 + 4
+  y += subLines.length * 5.5 + 4
 
   doc.setDrawColor(200, 200, 200)
   doc.setLineWidth(0.4)
   doc.line(margin, y, pageWidth - margin, y)
-  y += 8
+  y += 7
 
-  // Authors
+  // Authors with circular portraits in the header
   doc.setFont('helvetica', 'bold')
-  doc.setFontSize(10)
-  doc.setTextColor(40, 40, 40)
+  doc.setFontSize(9)
+  doc.setTextColor(100, 100, 100)
   doc.text('AUTHORS', margin, y)
-  y += 5
+  y += 6
 
+  const authorThumbSize = 10 // mm
+  const authorSpacing = (contentWidth - authorThumbSize * 3) / 3
+
+  const headerAuthors = [
+    { name: 'Sagar Tandon', avatar: avatarSagar },
+    { name: 'Paavo Pylkkanen', avatar: avatarPaavo },
+    { name: 'Elina Pylkkanen', avatar: avatarElina },
+  ]
+
+  let curAuthX = margin
+  headerAuthors.forEach((auth) => {
+    if (auth.avatar) {
+      doc.addImage(auth.avatar, 'PNG', curAuthX, y - 2, authorThumbSize, authorThumbSize, undefined, 'FAST')
+    }
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(9.5)
+    doc.setTextColor(40, 40, 40)
+    doc.text(auth.name, curAuthX + authorThumbSize + 3, y + 4)
+    curAuthX += authorSpacing + authorThumbSize
+  })
+
+  y += authorThumbSize + 4
   doc.setFont('helvetica', 'normal')
-  doc.setFontSize(10)
-  doc.setTextColor(60, 60, 60)
-  doc.text('Sagar Tandon   |   Paavo Pylkkanen   |   Elina Pylkkanen', margin, y)
-  y += 5
   doc.setFontSize(8.5)
   doc.setTextColor(120, 120, 120)
   doc.text('Helsinki, Finland', margin, y)
-  y += 14
+  y += 12
 
   /* ────────── HELPER FOR CONTENT ────────── */
   const addHeading = (title: string) => {
-    checkPageBreak(18)
-    y += 4
+    checkPageBreak(20)
+    y += 5
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(14)
+    doc.setFontSize(13.5)
     doc.setTextColor(25, 25, 25)
     doc.text(title, margin, y)
     y += 7
@@ -102,7 +246,7 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
     checkPageBreak(14)
     y += 3
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(11)
+    doc.setFontSize(10.5)
     doc.setTextColor(45, 45, 45)
     doc.text(title, margin, y)
     y += 6
@@ -122,13 +266,12 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
   const addBlockquote = (quote: string, cite?: string) => {
     doc.setFont('helvetica', 'italic')
     doc.setFontSize(9.5)
-    doc.setTextColor(80, 80, 80)
+    doc.setTextColor(70, 70, 70)
     const quoteWidth = contentWidth - 10
     const lines = doc.splitTextToSize(`"${quote}"`, quoteWidth)
     const quoteHeight = lines.length * 5.2 + (cite ? 6 : 0)
     checkPageBreak(quoteHeight + 6)
-    
-    // Draw quote left border
+
     doc.setDrawColor(180, 180, 180)
     doc.setLineWidth(0.8)
     doc.line(margin + 2, y - 2, margin + 2, y + quoteHeight - 2)
@@ -161,8 +304,39 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
     y += height + 2
   }
 
+  const addChart = (img: LoadedImage | null, caption?: string, maxW = contentWidth) => {
+    if (!img) return
+    const targetW = Math.min(contentWidth, maxW)
+    const targetH = (img.height / img.width) * targetW
+
+    const maxPrintH = pageHeight - margin * 2 - 22
+    let renderW = targetW
+    let renderH = targetH
+    if (renderH > maxPrintH) {
+      renderH = maxPrintH
+      renderW = (img.width / img.height) * renderH
+    }
+
+    const extraSpace = caption ? 10 : 6
+    checkPageBreak(renderH + extraSpace)
+
+    const renderX = margin + (contentWidth - renderW) / 2
+    doc.addImage(img.dataUrl, 'PNG', renderX, y, renderW, renderH, undefined, 'FAST')
+    y += renderH + 3
+
+    if (caption) {
+      doc.setFont('helvetica', 'italic')
+      doc.setFontSize(8)
+      doc.setTextColor(130, 130, 130)
+      doc.text(caption, pageWidth / 2, y + 1.5, { align: 'center' })
+      y += 5
+    }
+    y += 4
+  }
+
   /* ────────── SECTION 1: Where Do Thoughts Come From? ────────── */
   addHeading('1. Where Do Thoughts Come From?')
+  addChart(chartThought, 'Thought as the Starting Point')
   addParagraph(
     'Where do thoughts come from? How do thoughts define the physical world we live in? Do we even think critically about our thoughts before jumping on the bandwagon to research basic sciences, innovate, create, and scale technologies, or even finance the sciences and technologies and seek returns from that?'
   )
@@ -177,6 +351,7 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
 
   /* ────────── SECTION 2: Losing Agency of Thought ────────── */
   addHeading('2. Losing Agency of Thought')
+  addChart(chartAgency, 'Losing Agency of Thought')
   addParagraph(
     'With the advent of mindless scrolling because of social media, dopamine hits and instant gratification from LLMs, agents, and chatbots are numbing us; it is slowing the thinking process but most importantly it is damaging our thoughts to even refresh or reboot, and challenge the assumptions of our own thoughts and start a thought process from scratch.'
   )
@@ -186,6 +361,7 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
 
   /* ────────── SECTION 3: The Finance Disconnect ────────── */
   addHeading('3. The Finance Disconnect')
+  addChart(chartDivorce, 'The Great Divorce: Decoupling of Capital from the Real Economy')
   addParagraph(
     'The world of finance that I come from is not just a passive culprit, but actively involved in destroying the very essence of human principles, not because it is inherently evil, but rather because of the thought, or the lack of challenging, the status quo. Several assumptions about the current form of finance and capitalism are purely based on the opinions of neo-liberal economists like Milton Friedman, which have been overly amplified and adopted without knowing the facts or challenging the thoughts not just enough, but not at all, and that is the core issue, which has rotten the field of finance.'
   )
@@ -201,6 +377,7 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
 
   /* ────────── SECTION 4: Why Existing Institutions Fail ────────── */
   addHeading('4. Why Existing Institutions Fail')
+  addChart(chartInstitutions, 'Why Existing Institutions Fail: The Newtonian Trap')
   addParagraph(
     'Institutions like the Hoover Institution, the Cato Institute, and the Brookings Institution operate on assumptions and ideas largely rooted in the Newtonian paradigm. They view the economy as a mechanistic system, devoid of humans and nature, and as independent agents, which is further from the truth. They optimize for maximum extraction in the name of shareholder value creation, as if that is the ultimate motto for human existence, survival, and purpose, which affects humanity in profound ways.'
   )
@@ -210,6 +387,7 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
 
   /* ────────── SECTION 5: ESG: Lip Service ────────── */
   addHeading('5. ESG: Lip Service')
+  addChart(chartEsg, 'ESG: Lip Service — Fragmented Thought in Action')
   addParagraph(
     'To me, the response to these neo-liberal thoughts in the form of ESG and impact investing is nothing but lip service, as this is often fragmented thought in action, applying a thin ethical veneer to the same extractive capital structures, which are based on one thought of shareholder optimization in the short term, forgetting what will happen in a generation or so.'
   )
@@ -236,27 +414,35 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
   )
   addParagraph('Upstream Institute operates through three interconnected pillars:')
   
+  addChart(chartThreeLegs, 'The Three Pillars of Upstream Institute')
+
   addSubHeading('Pillar 1: Think & Dialogue')
+  addChart(chartLeg1, 'Pillar 1: Think & Dialogue Lab', 140)
   addParagraph('Pushing the boundaries of thought by bringing authentic dialogue back into practice.')
   addBullet('', 'Content — Books, Podcasts, and philosophical inquiries')
   addBullet('', 'Research Papers, White Papers, and ontological studies')
   addBullet('', 'Curated Dialogue and Retreat Event Properties')
 
   addSubHeading('Pillar 2: Social Policy Lab')
+  addChart(chartLeg2, 'Pillar 2: Social Policy Lab', 140)
   addParagraph('Leveraging Finland\'s and the Nordics\' unique administrative infrastructure as a living laboratory to experiment with regenerative social and economic policies.')
   addBullet('', 'Population-Scale Testing of progressive economic frameworks')
   addBullet('', 'Environmental-Scale Testing and natural resource stewardship')
 
   addSubHeading('Pillar 3: Capital Deployment')
+  addChart(chartLeg3, 'Pillar 3: Capital Deployment Arm', 140)
   addParagraph('A dedicated capital arm funding research, basic sciences, breakthrough innovation, and transformative technologies.')
   addBullet('', 'Grants funding researchers in basic sciences and philosophy')
   addBullet('', 'Outcome Bonds linking debt returns to verified social and ecological outcomes')
   addBullet('', 'SME Patient Capital Vehicles providing permanent, non-extractive hybrid capital')
   addBullet('', 'Deep-tech funding with a multi-generational horizon for humanity and nature')
 
+  addChart(chartCausal, 'Full Causal Chain: From Problem to Solution')
+
   /* ────────── SECTION 8: The Physical Space ────────── */
   addHeading('8. The Physical Space: Upstream and Downstream')
   addParagraph('The physical space we have acquired can be divided into two parts:')
+  addChart(chartSpatial, 'Spatial Layout: Upstream Lab (Think), The Bridge, and Downstream Lab (Do)')
 
   addSubHeading('Upstream Lab - Think')
   addParagraph(
@@ -285,18 +471,53 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
   /* ────────── SECTION 9: About the Authors ────────── */
   addHeading('9. About the Authors')
 
-  addSubHeading('Sagar Tandon')
-  addParagraph(
+  const addAuthorBlock = (avatarData: string | null, name: string, bio: string) => {
+    const avatarDim = 16 // mm
+    const avatarGap = 4
+    const textStartX = avatarData ? margin + avatarDim + avatarGap : margin
+    const textAvailableW = avatarData ? contentWidth - avatarDim - avatarGap : contentWidth
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.setTextColor(55, 55, 55)
+    const bioLines = doc.splitTextToSize(bio, textAvailableW)
+    const textHeight = bioLines.length * 4.8 + 6
+    const blockHeight = Math.max(avatarDim + 4, textHeight)
+
+    checkPageBreak(blockHeight + 6)
+
+    if (avatarData) {
+      doc.addImage(avatarData, 'PNG', margin, y, avatarDim, avatarDim, undefined, 'FAST')
+    }
+
+    doc.setFont('helvetica', 'bold')
+    doc.setFontSize(11)
+    doc.setTextColor(25, 25, 25)
+    doc.text(name, textStartX, y + 4.5)
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(9)
+    doc.setTextColor(55, 55, 55)
+    doc.text(bioLines, textStartX, y + 9.5)
+
+    y += blockHeight + 6
+  }
+
+  addAuthorBlock(
+    avatarSagar,
+    'Sagar Tandon',
     'Sagar is an impact investor and capital allocator with more than a decade of global experience (emerging and developed markets) building impact funds, investing in more than 25+ impact ventures, and an active board member in three companies in the EU and one in South Korea.'
   )
 
-  addSubHeading('Paavo Pylkkanen')
-  addParagraph(
+  addAuthorBlock(
+    avatarPaavo,
+    'Paavo Pylkkanen',
     'Paavo is a distinguished philosopher whose decades of work on physicist David Bohm\'s theories of quantum physics and consciousness provide the ontological foundation for the Upstream Institute. He has extensively researched the concept of the "Implicate Order" — the view that reality is an unbroken, flowing whole rather than a collection of isolated parts. At the Institute, Paavo directs intellectual coherence, ensuring that all research, policy design, and capital deployment transcend the limitations of fragmented, mechanical thought.'
   )
 
-  addSubHeading('Elina Pylkkanen')
-  addParagraph(
+  addAuthorBlock(
+    avatarElina,
+    'Elina Pylkkanen',
     'Elina is a distinguished economist currently serving as Under-Secretary of State at Finland\'s Ministry of Economic Affairs and Employment. She holds a PhD in Economics and has previously served as Director of the Labor Institute for Economic Research (LABORE), Senior Economist at the OECD in Paris, and Visiting Scholar at Stanford University. Elina brings unparalleled expertise in labor markets, taxation, and social policy design. She leads the Upstream Nordic Social Policy Research Lab, translating philosophical frameworks into rigorous, population-scale economic interventions.'
   )
 
