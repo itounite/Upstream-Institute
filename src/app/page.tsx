@@ -2,6 +2,7 @@
 
 import { useEffect, useState, createContext, useContext, useCallback } from 'react'
 import { Download, ArrowLeft, BookOpen, Filter, ArrowUpRight, FileText, Check } from 'lucide-react'
+import { generateWhitePaperPdf } from '../lib/generatePdf'
 
 /* ───────────────────────── NAVIGATION ───────────────────────── */
 
@@ -72,10 +73,10 @@ function ThemeToggle() {
       onClick={toggle}
       className="fixed cursor-pointer flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95"
       style={{
-        top: '1rem',
+        top: '0.85rem',
         right: '1rem',
-        width: '2.5rem',
-        height: '2.5rem',
+        width: '2.25rem',
+        height: '2.25rem',
         borderRadius: '50%',
         background: 'transparent',
         border: `1px solid ${col.divider}`,
@@ -110,6 +111,81 @@ function ThemeToggle() {
         )}
       </svg>
     </button>
+  )
+}
+
+/* ───────────────────────── TOP NAVIGATION ───────────────────────── */
+
+function TopNav() {
+  const { view, navigate } = useNav()
+  const { theme } = useTheme()
+  const s = v(theme)
+
+  const navItems: { id: View; label: string }[] = [
+    { id: 'landing', label: 'Home' },
+    { id: 'white-paper', label: 'White Paper' },
+    { id: 'thinkroom', label: 'Think Room' },
+  ]
+
+  return (
+    <header
+      className="fixed top-0 left-0 right-0 px-4 sm:px-8 md:px-12 py-3.5 sm:py-4 flex items-center justify-between no-print transition-colors duration-500"
+      style={{
+        background: s.navBg,
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: `1px solid ${s.divider}`,
+        zIndex: 50,
+      }}
+    >
+      {/* Brand logo / home link */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => navigate('landing')}
+          className="transition-opacity duration-300 cursor-pointer text-left truncate hover:opacity-80"
+          style={{
+            color: s.text,
+            fontSize: '0.6875rem',
+            letterSpacing: '0.2em',
+            fontWeight: 700,
+            textTransform: 'uppercase' as const,
+            background: 'none',
+            border: 'none',
+          }}
+        >
+          <span className="hidden sm:inline">Upstream Institute</span>
+          <span className="sm:hidden tracking-wider font-semibold">Upstream</span>
+        </button>
+      </div>
+
+      {/* Primary Navigation: Home, White Paper, Think Room */}
+      <nav className="flex items-center gap-1 sm:gap-2 md:gap-4 pr-12 sm:pr-14" aria-label="Main Navigation">
+        {navItems.map(item => {
+          const isActive = view === item.id
+          return (
+            <button
+              key={item.id}
+              onClick={() => navigate(item.id)}
+              className="px-2.5 sm:px-3.5 py-1 text-[11px] sm:text-xs uppercase tracking-wider transition-all duration-300 cursor-pointer rounded whitespace-nowrap"
+              style={{
+                color: isActive ? s.text : s.muted,
+                fontWeight: isActive ? 600 : 400,
+                borderBottom: isActive ? `2px solid ${s.text}` : '2px solid transparent',
+                background: 'transparent',
+              }}
+              onMouseEnter={e => {
+                if (!isActive) e.currentTarget.style.color = s.text
+              }}
+              onMouseLeave={e => {
+                if (!isActive) e.currentTarget.style.color = s.muted
+              }}
+            >
+              {item.label}
+            </button>
+          )
+        })}
+      </nav>
+    </header>
   )
 }
 
@@ -236,7 +312,7 @@ function ComingSoon() {
   }, [])
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center px-6 relative transition-colors duration-500"
+    <main className="min-h-screen flex flex-col items-center justify-center px-6 pt-16 relative transition-colors duration-500"
       style={{ background: s.bg, color: s.text }}
     >
       <NordicForest color={s.forestHome} />
@@ -367,7 +443,27 @@ function WhitePaper() {
   const { theme } = useTheme()
   const { navigate } = useNav()
   const [ready, setReady] = useState(false)
+  const [downloading, setDownloading] = useState(false)
+  const [downloadSuccess, setDownloadSuccess] = useState(false)
   const s = v(theme)
+
+  const handleDownload = async () => {
+    try {
+      setDownloading(true)
+      await generateWhitePaperPdf()
+      setDownloading(false)
+      setDownloadSuccess(true)
+      setTimeout(() => setDownloadSuccess(false), 3500)
+    } catch (err) {
+      console.error('Direct PDF download error:', err)
+      setDownloading(false)
+      try {
+        window.print()
+      } catch (printErr) {
+        console.error('Print call blocked or failed:', printErr)
+      }
+    }
+  }
 
   const scrollTo = useCallback((id: string) => {
     const el = document.getElementById(id)
@@ -390,77 +486,8 @@ function WhitePaper() {
       <NordicForest color={s.forestWP} />
       <Grain />
 
-      {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 sm:px-8 md:px-12 py-3 sm:py-4 no-print"
-        style={{ background: s.navBg, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 100 }}
-      >
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate('landing')}
-            className="transition-colors duration-500 cursor-pointer text-left truncate"
-            style={{ color: s.text, fontSize: '0.625rem', letterSpacing: '0.18em', fontWeight: 600, textTransform: 'uppercase' as const, background: 'none', border: 'none' }}
-          >
-            Upstream Institute
-          </button>
-        </div>
-
-        <div className="flex items-center gap-1.5 sm:gap-4">
-          <span
-            className="px-2.5 py-1 text-[11px] uppercase tracking-wider font-semibold"
-            style={{ color: s.text, borderBottom: `1.5px solid ${s.text}` }}
-          >
-            White Paper
-          </span>
-          <button
-            onClick={() => navigate('thinkroom')}
-            className="px-2.5 py-1 text-[11px] uppercase tracking-wider font-medium cursor-pointer transition-colors"
-            style={{ color: s.muted }}
-            onMouseEnter={e => (e.currentTarget.style.color = s.text)}
-            onMouseLeave={e => (e.currentTarget.style.color = s.muted)}
-          >
-            Think Room
-          </button>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3 pr-8 sm:pr-0">
-          <button
-            onClick={() => window.print()}
-            className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded transition-all duration-300"
-            style={{
-              border: `1px solid ${s.divider}`,
-              background: 'transparent',
-              color: s.text,
-              fontSize: '0.6875rem',
-              fontWeight: 500,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase' as const,
-            }}
-            title="Download or Print PDF"
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = s.text
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = s.divider
-            }}
-          >
-            <Download size={13} className="shrink-0" />
-            <span className="hidden sm:inline">Download PDF</span>
-            <span className="sm:hidden">PDF</span>
-          </button>
-          <button
-            onClick={() => navigate('landing')}
-            className="transition-colors duration-500 cursor-pointer flex items-center gap-1 py-1 px-2"
-            style={{ color: s.muted, fontSize: '0.625rem', letterSpacing: '0.12em', fontWeight: 500, textTransform: 'uppercase' as const, background: 'none', border: 'none' }}
-            onMouseEnter={e => (e.currentTarget.style.color = s.text)}
-            onMouseLeave={e => (e.currentTarget.style.color = s.muted)}
-          >
-            &larr; <span className="hidden xs:inline">Back</span>
-          </button>
-        </div>
-      </nav>
-
       {/* Hero */}
-      <header className="pt-24 pb-8 sm:pt-32 sm:pb-12 md:pt-40 md:pb-16 px-4 sm:px-6 md:px-12 max-w-3xl mx-auto text-center">
+      <header className="pt-24 pb-8 sm:pt-32 sm:pb-12 md:pt-36 md:pb-16 px-4 sm:px-6 md:px-12 max-w-3xl mx-auto text-center">
         <p className="uppercase mb-6 sm:mb-8"
           style={{ color: s.muted, fontSize: '0.625rem', letterSpacing: '0.3em', fontWeight: 600 }}
         >
@@ -490,8 +517,9 @@ function WhitePaper() {
         {/* Action button bar */}
         <div className="mt-7 flex items-center justify-center gap-3 sm:gap-4 flex-wrap no-print">
           <button
-            onClick={() => window.print()}
-            className="cursor-pointer inline-flex items-center gap-2 px-5 py-2.5 rounded transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            onClick={handleDownload}
+            disabled={downloading}
+            className="cursor-pointer inline-flex items-center gap-2 px-5 py-2.5 rounded transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60"
             style={{
               background: s.text,
               color: s.bg,
@@ -502,8 +530,22 @@ function WhitePaper() {
               textTransform: 'uppercase' as const,
             }}
           >
-            <Download size={14} />
-            <span>Download White Paper (PDF)</span>
+            {downloading ? (
+              <>
+                <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                <span>Generating PDF...</span>
+              </>
+            ) : downloadSuccess ? (
+              <>
+                <Check size={14} />
+                <span>PDF Downloaded!</span>
+              </>
+            ) : (
+              <>
+                <Download size={14} />
+                <span>Download White Paper (PDF)</span>
+              </>
+            )}
           </button>
           <button
             onClick={() => navigate('thinkroom')}
@@ -529,6 +571,23 @@ function WhitePaper() {
             <span>Explore Think Room &rarr;</span>
           </button>
         </div>
+
+        <p className="mt-3 text-[11px] no-print" style={{ color: s.faint }}>
+          Direct PDF download &bull;{' '}
+          <button
+            onClick={() => {
+              try {
+                window.print()
+              } catch (e) {
+                console.error('Print call blocked:', e)
+              }
+            }}
+            className="underline hover:opacity-80 cursor-pointer"
+            style={{ background: 'none', border: 'none', color: s.muted, fontSize: 'inherit', padding: 0 }}
+          >
+            or print via browser
+          </button>
+        </p>
       </header>
 
       {/* Table of Contents */}
@@ -843,51 +902,6 @@ function ThinkRoom() {
       <NordicForest color={s.forestWP} />
       <Grain />
 
-      {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 sm:px-8 md:px-12 py-3 sm:py-4 no-print"
-        style={{ background: s.navBg, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 100 }}
-      >
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => navigate('landing')}
-            className="transition-colors duration-500 cursor-pointer text-left truncate"
-            style={{ color: s.text, fontSize: '0.625rem', letterSpacing: '0.18em', fontWeight: 600, textTransform: 'uppercase' as const, background: 'none', border: 'none' }}
-          >
-            Upstream Institute
-          </button>
-        </div>
-
-        <div className="flex items-center gap-1.5 sm:gap-4">
-          <button
-            onClick={() => navigate('white-paper')}
-            className="px-2.5 py-1 text-[11px] uppercase tracking-wider font-medium cursor-pointer transition-colors"
-            style={{ color: s.muted }}
-            onMouseEnter={e => (e.currentTarget.style.color = s.text)}
-            onMouseLeave={e => (e.currentTarget.style.color = s.muted)}
-          >
-            White Paper
-          </button>
-          <span
-            className="px-2.5 py-1 text-[11px] uppercase tracking-wider font-semibold"
-            style={{ color: s.text, borderBottom: `1.5px solid ${s.text}` }}
-          >
-            Think Room
-          </span>
-        </div>
-
-        <div className="flex items-center gap-2 sm:gap-3 pr-8 sm:pr-0">
-          <button
-            onClick={() => navigate('landing')}
-            className="transition-colors duration-500 cursor-pointer flex items-center gap-1 py-1 px-2"
-            style={{ color: s.muted, fontSize: '0.625rem', letterSpacing: '0.12em', fontWeight: 500, textTransform: 'uppercase' as const, background: 'none', border: 'none' }}
-            onMouseEnter={e => (e.currentTarget.style.color = s.text)}
-            onMouseLeave={e => (e.currentTarget.style.color = s.muted)}
-          >
-            &larr; <span className="hidden xs:inline">Back</span>
-          </button>
-        </div>
-      </nav>
-
       {/* Main Container */}
       <main className="pt-24 pb-24 sm:pt-32 sm:pb-32 px-4 sm:px-6 md:px-12 max-w-4xl mx-auto relative" style={{ zIndex: 2 }}>
         {/* Header */}
@@ -1115,6 +1129,7 @@ export default function Home() {
   return (
     <ThemeProvider>
       <NavCtx.Provider value={{ view, navigate }}>
+        <TopNav />
         <ThemeToggle />
         {view === 'white-paper' && <WhitePaper />}
         {view === 'thinkroom' && <ThinkRoom />}
