@@ -1,6 +1,23 @@
 'use client'
 
 import { useEffect, useState, createContext, useContext, useCallback } from 'react'
+import { Download, ArrowLeft, BookOpen, Filter, ArrowUpRight, FileText, Check } from 'lucide-react'
+
+/* ───────────────────────── NAVIGATION ───────────────────────── */
+
+export type View = 'landing' | 'white-paper' | 'thinkroom'
+
+const NavCtx = createContext<{
+  view: View
+  navigate: (to: View) => void
+}>({
+  view: 'landing',
+  navigate: () => {},
+})
+
+export function useNav() {
+  return useContext(NavCtx)
+}
 
 /* ───────────────────────── THEME ───────────────────────── */
 
@@ -199,6 +216,7 @@ function Grain() {
 
 function ComingSoon() {
   const { theme } = useTheme()
+  const { navigate } = useNav()
   const [visible, setVisible] = useState(false)
   const [hovered, setHovered] = useState(false)
   const s = v(theme)
@@ -248,27 +266,54 @@ function ComingSoon() {
           Reimagining Thought<br />for intergenerational impact
         </p>
 
-        {/* Read Think Upstream Button */}
-        <button
-          onClick={() => { window.location.hash = 'white-paper' }}
-          onMouseEnter={() => setHovered(true)}
-          onMouseLeave={() => setHovered(false)}
-          className="mt-10 cursor-pointer transition-all duration-300"
-          style={{
-            padding: '0.7rem 2rem',
-            border: `1px solid ${hovered ? s.text : s.muted}`,
-            borderRadius: '2px',
-            background: 'transparent',
-            color: s.text,
-            fontSize: '0.6875rem',
-            fontWeight: 500,
-            letterSpacing: '0.15em',
-            textTransform: 'uppercase' as const,
-            boxShadow: hovered ? btnGlow : 'none',
-          }}
-        >
-          Read Think Upstream
-        </button>
+        {/* Action Buttons */}
+        <div className="mt-10 flex flex-col sm:flex-row items-center gap-3 w-full max-w-sm justify-center">
+          <button
+            onClick={() => navigate('white-paper')}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
+            className="w-full sm:w-auto cursor-pointer transition-all duration-300"
+            style={{
+              padding: '0.7rem 1.75rem',
+              border: `1px solid ${hovered ? s.text : s.muted}`,
+              borderRadius: '2px',
+              background: 'transparent',
+              color: s.text,
+              fontSize: '0.6875rem',
+              fontWeight: 500,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase' as const,
+              boxShadow: hovered ? btnGlow : 'none',
+            }}
+          >
+            Read Think Upstream
+          </button>
+          <button
+            onClick={() => navigate('thinkroom')}
+            className="w-full sm:w-auto cursor-pointer transition-all duration-300"
+            style={{
+              padding: '0.7rem 1.75rem',
+              border: `1px solid ${s.divider}`,
+              borderRadius: '2px',
+              background: 'transparent',
+              color: s.muted,
+              fontSize: '0.6875rem',
+              fontWeight: 500,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase' as const,
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.color = s.text
+              e.currentTarget.style.borderColor = s.muted
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.color = s.muted
+              e.currentTarget.style.borderColor = s.divider
+            }}
+          >
+            Think Room
+          </button>
+        </div>
 
         <div className="mt-8 flex items-center gap-2">
           <span className="inline-block w-1.5 h-1.5 rounded-full"
@@ -320,6 +365,7 @@ const TOC = [
 
 function WhitePaper() {
   const { theme } = useTheme()
+  const { navigate } = useNav()
   const [ready, setReady] = useState(false)
   const s = v(theme)
 
@@ -345,30 +391,71 @@ function WhitePaper() {
       <Grain />
 
       {/* Nav */}
-      <nav className="fixed top-0 left-0 right-0 grid grid-cols-3 items-center px-4 sm:px-8 md:px-12 py-3.5 sm:py-5"
+      <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 sm:px-8 md:px-12 py-3 sm:py-4 no-print"
         style={{ background: s.navBg, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 100 }}
       >
-        <div className="flex justify-start">
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => { window.location.hash = '' }}
+            onClick={() => navigate('landing')}
             className="transition-colors duration-500 cursor-pointer text-left truncate"
             style={{ color: s.text, fontSize: '0.625rem', letterSpacing: '0.18em', fontWeight: 600, textTransform: 'uppercase' as const, background: 'none', border: 'none' }}
           >
             Upstream Institute
           </button>
         </div>
-        <div className="flex justify-center">
+
+        <div className="flex items-center gap-1.5 sm:gap-4">
+          <span
+            className="px-2.5 py-1 text-[11px] uppercase tracking-wider font-semibold"
+            style={{ color: s.text, borderBottom: `1.5px solid ${s.text}` }}
+          >
+            White Paper
+          </span>
           <button
-            onClick={() => { window.location.hash = '' }}
+            onClick={() => navigate('thinkroom')}
+            className="px-2.5 py-1 text-[11px] uppercase tracking-wider font-medium cursor-pointer transition-colors"
+            style={{ color: s.muted }}
+            onMouseEnter={e => (e.currentTarget.style.color = s.text)}
+            onMouseLeave={e => (e.currentTarget.style.color = s.muted)}
+          >
+            Think Room
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3 pr-8 sm:pr-0">
+          <button
+            onClick={() => window.print()}
+            className="cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded transition-all duration-300"
+            style={{
+              border: `1px solid ${s.divider}`,
+              background: 'transparent',
+              color: s.text,
+              fontSize: '0.6875rem',
+              fontWeight: 500,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase' as const,
+            }}
+            title="Download or Print PDF"
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = s.text
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = s.divider
+            }}
+          >
+            <Download size={13} className="shrink-0" />
+            <span className="hidden sm:inline">Download PDF</span>
+            <span className="sm:hidden">PDF</span>
+          </button>
+          <button
+            onClick={() => navigate('landing')}
             className="transition-colors duration-500 cursor-pointer flex items-center gap-1 py-1 px-2"
             style={{ color: s.muted, fontSize: '0.625rem', letterSpacing: '0.12em', fontWeight: 500, textTransform: 'uppercase' as const, background: 'none', border: 'none' }}
             onMouseEnter={e => (e.currentTarget.style.color = s.text)}
             onMouseLeave={e => (e.currentTarget.style.color = s.muted)}
           >
-            &larr; Back
+            &larr; <span className="hidden xs:inline">Back</span>
           </button>
-        </div>
-        <div className="flex justify-end pr-8 sm:pr-0">
         </div>
       </nav>
 
@@ -399,6 +486,49 @@ function WhitePaper() {
         <p className="mt-3" style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.04em' }}>
           Helsinki, Finland
         </p>
+
+        {/* Action button bar */}
+        <div className="mt-7 flex items-center justify-center gap-3 sm:gap-4 flex-wrap no-print">
+          <button
+            onClick={() => window.print()}
+            className="cursor-pointer inline-flex items-center gap-2 px-5 py-2.5 rounded transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            style={{
+              background: s.text,
+              color: s.bg,
+              border: `1px solid ${s.text}`,
+              fontSize: '0.6875rem',
+              fontWeight: 600,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase' as const,
+            }}
+          >
+            <Download size={14} />
+            <span>Download White Paper (PDF)</span>
+          </button>
+          <button
+            onClick={() => navigate('thinkroom')}
+            className="cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded transition-all duration-300"
+            style={{
+              background: 'transparent',
+              color: s.muted,
+              border: `1px solid ${s.divider}`,
+              fontSize: '0.6875rem',
+              fontWeight: 500,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase' as const,
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = s.text
+              e.currentTarget.style.color = s.text
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = s.divider
+              e.currentTarget.style.color = s.muted
+            }}
+          >
+            <span>Explore Think Room &rarr;</span>
+          </button>
+        </div>
       </header>
 
       {/* Table of Contents */}
@@ -553,11 +683,11 @@ function WhitePaper() {
           </WPAuthor>
         </WPSection>
 
-        {/* Bottom Back Button */}
-        <div className="mt-16 flex justify-center">
+        {/* Bottom Back & Nav Buttons */}
+        <div className="mt-16 flex flex-col sm:flex-row items-center justify-center gap-4 no-print">
           <button
-            onClick={() => { window.location.hash = '' }}
-            className="cursor-pointer transition-all duration-300"
+            onClick={() => navigate('landing')}
+            className="w-full sm:w-auto cursor-pointer transition-all duration-300"
             style={{
               padding: '0.7rem 2rem',
               border: `1px solid ${s.muted}`,
@@ -573,6 +703,31 @@ function WhitePaper() {
             onMouseLeave={e => (e.currentTarget.style.borderColor = s.muted)}
           >
             &larr; Back to Home
+          </button>
+          <button
+            onClick={() => navigate('thinkroom')}
+            className="w-full sm:w-auto cursor-pointer transition-all duration-300"
+            style={{
+              padding: '0.7rem 2rem',
+              border: `1px solid ${s.divider}`,
+              borderRadius: '2px',
+              background: 'transparent',
+              color: s.muted,
+              fontSize: '0.6875rem',
+              fontWeight: 500,
+              letterSpacing: '0.15em',
+              textTransform: 'uppercase' as const,
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = s.text
+              e.currentTarget.style.color = s.text
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = s.divider
+              e.currentTarget.style.color = s.muted
+            }}
+          >
+            Explore Think Room &rarr;
           </button>
         </div>
 
@@ -608,7 +763,7 @@ function WPChart({ src, alt }: { src: string; alt: string }) {
   const { theme } = useTheme()
   const s = v(theme)
   return (
-    <figure className="my-8 sm:my-10 -mx-2 sm:-mx-4 md:-mx-6">
+    <figure className="wp-chart-container my-8 sm:my-10 -mx-2 sm:-mx-4 md:-mx-6">
       <img
         src={src}
         alt={alt}
@@ -646,7 +801,7 @@ function WPAuthor({ name, role, children }: { name: string; role?: string; child
   const { theme } = useTheme()
   const s = v(theme)
   return (
-    <div className="mb-6 sm:mb-8 last:mb-0">
+    <div className="wp-author-card mb-6 sm:mb-8 last:mb-0">
       <p className="flex flex-wrap items-baseline gap-x-2" style={{ fontWeight: 600, lineHeight: 1.5 }}>
         <span dangerouslySetInnerHTML={{ __html: name }} />
         {role ? <span style={{ color: s.faint, fontSize: '0.875em' }}>| {role}</span> : null}
@@ -656,30 +811,316 @@ function WPAuthor({ name, role, children }: { name: string; role?: string; child
   )
 }
 
-/* ───────────────────────── ROUTER ───────────────────────── */
+/* ───────────────────────── THINK ROOM ───────────────────────── */
 
-export default function Home() {
-  const [view, setView] = useState<'landing' | 'white-paper'>((() =>
-    typeof window !== 'undefined' && window.location.hash === '#white-paper' ? 'white-paper' : 'landing'
-  ))
+const THINK_ROOM_AUTHORS = [
+  { id: 'all', name: 'All Authors' },
+  { id: 'sagar', name: 'Sagar Tandon' },
+  { id: 'paavo', name: 'Paavo Pylkk\u00e4nen' },
+  { id: 'elina', name: 'Elina Pylkk\u00e4nen' },
+]
+
+function ThinkRoom() {
+  const { theme } = useTheme()
+  const { navigate } = useNav()
+  const [selectedAuthor, setSelectedAuthor] = useState<string>('all')
+  const [ready, setReady] = useState(false)
+  const s = v(theme)
 
   useEffect(() => {
-    const onHashChange = () => {
-      const hash = window.location.hash
-      if (hash === '#white-paper') {
+    window.scrollTo(0, 0)
+    const timer = setTimeout(() => setReady(true), 50)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const currentAuthor = THINK_ROOM_AUTHORS.find(a => a.id === selectedAuthor) || THINK_ROOM_AUTHORS[0]
+
+  return (
+    <div
+      className={`min-h-screen relative transition-colors duration-500 ${ready ? 'opacity-100' : 'opacity-0'}`}
+      style={{ transitionProperty: 'opacity, background-color, color', background: s.bg, color: s.text }}
+    >
+      <NordicForest color={s.forestWP} />
+      <Grain />
+
+      {/* Nav */}
+      <nav className="fixed top-0 left-0 right-0 flex items-center justify-between px-4 sm:px-8 md:px-12 py-3 sm:py-4 no-print"
+        style={{ background: s.navBg, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', zIndex: 100 }}
+      >
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => navigate('landing')}
+            className="transition-colors duration-500 cursor-pointer text-left truncate"
+            style={{ color: s.text, fontSize: '0.625rem', letterSpacing: '0.18em', fontWeight: 600, textTransform: 'uppercase' as const, background: 'none', border: 'none' }}
+          >
+            Upstream Institute
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1.5 sm:gap-4">
+          <button
+            onClick={() => navigate('white-paper')}
+            className="px-2.5 py-1 text-[11px] uppercase tracking-wider font-medium cursor-pointer transition-colors"
+            style={{ color: s.muted }}
+            onMouseEnter={e => (e.currentTarget.style.color = s.text)}
+            onMouseLeave={e => (e.currentTarget.style.color = s.muted)}
+          >
+            White Paper
+          </button>
+          <span
+            className="px-2.5 py-1 text-[11px] uppercase tracking-wider font-semibold"
+            style={{ color: s.text, borderBottom: `1.5px solid ${s.text}` }}
+          >
+            Think Room
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2 sm:gap-3 pr-8 sm:pr-0">
+          <button
+            onClick={() => navigate('landing')}
+            className="transition-colors duration-500 cursor-pointer flex items-center gap-1 py-1 px-2"
+            style={{ color: s.muted, fontSize: '0.625rem', letterSpacing: '0.12em', fontWeight: 500, textTransform: 'uppercase' as const, background: 'none', border: 'none' }}
+            onMouseEnter={e => (e.currentTarget.style.color = s.text)}
+            onMouseLeave={e => (e.currentTarget.style.color = s.muted)}
+          >
+            &larr; <span className="hidden xs:inline">Back</span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Main Container */}
+      <main className="pt-24 pb-24 sm:pt-32 sm:pb-32 px-4 sm:px-6 md:px-12 max-w-4xl mx-auto relative" style={{ zIndex: 2 }}>
+        {/* Header */}
+        <header className="max-w-2xl mx-auto text-center mb-10 sm:mb-14">
+          <p className="uppercase mb-4"
+            style={{ color: s.muted, fontSize: '0.625rem', letterSpacing: '0.3em', fontWeight: 600 }}
+          >
+            Upstream Archive
+          </p>
+          <h1 style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', fontWeight: 700, letterSpacing: '-0.01em', lineHeight: 1.15 }}>
+            Think Room
+          </h1>
+          <p className="mt-4 max-w-lg mx-auto"
+            style={{ color: s.muted, fontSize: 'clamp(0.875rem, 2vw, 1.05rem)', fontWeight: 300, letterSpacing: '0.01em', lineHeight: 1.7 }}
+          >
+            A salon of active thought, dialogue transcripts, and field writings exploring the root of thought, capital allocation, and planetary regeneration.
+          </p>
+        </header>
+
+        {/* Author Filters */}
+        <div className="max-w-2xl mx-auto mb-10 sm:mb-12">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-4"
+            style={{ borderBottom: `1px solid ${s.divider}` }}
+          >
+            <span className="text-[11px] uppercase tracking-[0.2em] font-semibold" style={{ color: s.faint }}>
+              Filter by Author
+            </span>
+            <span className="text-xs" style={{ color: s.muted }}>
+              {selectedAuthor === 'all' ? 'All contributors' : `Filtered by: ${currentAuthor.name}`}
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 flex-wrap">
+            {THINK_ROOM_AUTHORS.map(author => {
+              const isActive = selectedAuthor === author.id
+              return (
+                <button
+                  key={author.id}
+                  onClick={() => setSelectedAuthor(author.id)}
+                  className="cursor-pointer transition-all duration-200 px-3.5 py-1.5 rounded-full text-xs tracking-wider uppercase font-medium flex items-center gap-1.5"
+                  style={{
+                    background: isActive ? s.text : 'transparent',
+                    color: isActive ? s.bg : s.muted,
+                    border: `1px solid ${isActive ? s.text : s.divider}`,
+                  }}
+                  onMouseEnter={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.borderColor = s.muted
+                      e.currentTarget.style.color = s.text
+                    }
+                  }}
+                  onMouseLeave={e => {
+                    if (!isActive) {
+                      e.currentTarget.style.borderColor = s.divider
+                      e.currentTarget.style.color = s.muted
+                    }
+                  }}
+                >
+                  {isActive && <Check size={12} className="stroke-[2.5]" />}
+                  <span>{author.name}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Empty State Card */}
+        <section
+          className="max-w-2xl mx-auto p-8 sm:p-12 md:p-14 text-center rounded border transition-colors duration-300"
+          style={{
+            borderColor: s.divider,
+            background: theme === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
+          }}
+        >
+          <div
+            className="w-12 h-12 rounded-full mx-auto flex items-center justify-center mb-6"
+            style={{ border: `1px solid ${s.divider}`, color: s.muted }}
+          >
+            <BookOpen size={20} className="stroke-[1.5]" />
+          </div>
+
+          <p className="uppercase text-[11px] font-semibold tracking-[0.25em] mb-3" style={{ color: s.faint }}>
+            Inquiries in Progress
+          </p>
+
+          <h2 className="text-lg sm:text-xl font-semibold mb-4" style={{ color: s.text }}>
+            {selectedAuthor === 'all'
+              ? 'No essays published yet'
+              : `No essays published yet by ${currentAuthor.name}`}
+          </h2>
+
+          <p className="text-sm leading-relaxed max-w-md mx-auto mb-8 font-light" style={{ color: s.muted }}>
+            {selectedAuthor === 'all' && (
+              <>
+                The Think Room is currently empty while our initial dialogue papers and field inquiries are being prepared. Forthcoming essays by Sagar Tandon, Paavo Pylkk&auml;nen, and Elina Pylkk&auml;nen will appear here.
+              </>
+            )}
+            {selectedAuthor === 'sagar' && (
+              <>
+                Sagar Tandon&rsquo;s upcoming writings on catalytic capital allocation, venture ecosystems, and bridging upstream philosophical inquiry with downstream systemic impact will be published here.
+              </>
+            )}
+            {selectedAuthor === 'paavo' && (
+              <>
+                Paavo Pylkk&auml;nen&rsquo;s upcoming essays delving into David Bohm&rsquo;s implicate order, philosophy of physics and mind, and dialogue exercises to decouple thought from memory will appear here.
+              </>
+            )}
+            {selectedAuthor === 'elina' && (
+              <>
+                Elina Pylkk&auml;nen&rsquo;s upcoming papers addressing economic frameworks, labor dynamics, and public policy through holistic systems thinking will be archived here.
+              </>
+            )}
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4"
+            style={{ borderTop: `1px solid ${s.divider}` }}
+          >
+            <button
+              onClick={() => navigate('white-paper')}
+              className="cursor-pointer transition-all duration-300 px-4 py-2 rounded text-xs uppercase tracking-wider font-medium"
+              style={{
+                border: `1px solid ${s.text}`,
+                background: s.text,
+                color: s.bg,
+              }}
+            >
+              Read Think Upstream White Paper
+            </button>
+            <a
+              href="mailto:hello@upstreaminstitute.org"
+              className="transition-colors duration-300 px-4 py-2 rounded text-xs uppercase tracking-wider font-medium text-center"
+              style={{
+                border: `1px solid ${s.divider}`,
+                color: s.muted,
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = s.text
+                e.currentTarget.style.color = s.text
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = s.divider
+                e.currentTarget.style.color = s.muted
+              }}
+            >
+              Inquire / Propose Dialogue
+            </a>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="max-w-2xl mx-auto mt-20 pt-8" style={{ borderTop: `1px solid ${s.divider}` }}>
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <p style={{ color: s.text, fontSize: '0.75rem', fontWeight: 600, letterSpacing: '0.06em' }}>
+                The Upstream Institute
+              </p>
+              <p style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300 }}>
+                Helsinki, Finland
+              </p>
+            </div>
+            <a href="mailto:hello@upstreaminstitute.org"
+              className="transition-colors duration-500"
+              style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.03em' }}
+              onMouseEnter={e => (e.currentTarget.style.color = s.text)}
+              onMouseLeave={e => (e.currentTarget.style.color = s.faint)}
+            >
+              hello@upstreaminstitute.org
+            </a>
+          </div>
+        </footer>
+      </main>
+    </div>
+  )
+}
+
+/* ───────────────────────── ROUTER ───────────────────────── */
+
+function getInitialView(): View {
+  if (typeof window === 'undefined') return 'landing'
+  const path = window.location.pathname.toLowerCase()
+  const hash = window.location.hash.toLowerCase()
+  if (path.includes('/thinkroom') || hash === '#thinkroom') return 'thinkroom'
+  if (hash === '#white-paper' || path.includes('/white-paper')) return 'white-paper'
+  return 'landing'
+}
+
+export default function Home() {
+  const [view, setView] = useState<View>(getInitialView)
+
+  const navigate = useCallback((to: View) => {
+    setView(to)
+    if (typeof window !== 'undefined') {
+      if (to === 'thinkroom') {
+        window.history.pushState({}, '', '/thinkroom')
+      } else if (to === 'white-paper') {
+        window.history.pushState({}, '', '/#white-paper')
+      } else {
+        window.history.pushState({}, '', '/')
+      }
+      window.scrollTo(0, 0)
+    }
+  }, [])
+
+  useEffect(() => {
+    const handleLocationChange = () => {
+      const path = window.location.pathname.toLowerCase()
+      const hash = window.location.hash.toLowerCase()
+      if (path.includes('/thinkroom') || hash === '#thinkroom') {
+        setView('thinkroom')
+      } else if (hash === '#white-paper' || path.includes('/white-paper')) {
         setView('white-paper')
       } else {
         setView('landing')
       }
     }
-    window.addEventListener('hashchange', onHashChange)
-    return () => window.removeEventListener('hashchange', onHashChange)
+
+    window.addEventListener('popstate', handleLocationChange)
+    window.addEventListener('hashchange', handleLocationChange)
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange)
+      window.removeEventListener('hashchange', handleLocationChange)
+    }
   }, [])
 
   return (
     <ThemeProvider>
-      <ThemeToggle />
-      {view === 'white-paper' ? <WhitePaper /> : <ComingSoon />}
+      <NavCtx.Provider value={{ view, navigate }}>
+        <ThemeToggle />
+        {view === 'white-paper' && <WhitePaper />}
+        {view === 'thinkroom' && <ThinkRoom />}
+        {view === 'landing' && <ComingSoon />}
+      </NavCtx.Provider>
     </ThemeProvider>
   )
 }
+

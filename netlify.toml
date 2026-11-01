@@ -1,0 +1,22 @@
+# Netlify build configuration for Upstream Institute
+# Builds with Vite into dist/
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "20"
+  NETLIFY_NEXT_PLUGIN_SKIP = "true"
+
+# Single-Page Application (SPA) rewrite: routes like /thinkroom fallback to /index.html
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
