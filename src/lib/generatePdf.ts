@@ -99,7 +99,7 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
   const { onProgress } = options || {}
   onProgress?.('Loading diagrams & portraits...')
 
-  // Pre-load all 10 diagrams and author portraits concurrently
+  // Pre-load all 10 diagrams, 3 physical space photos, and author portraits concurrently
   const [
     chartThought,
     chartAgency,
@@ -112,6 +112,9 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
     chartLeg3,
     chartCausal,
     chartSpatial,
+    photoEstate,
+    photoDialogueSalon,
+    photoStudio,
     avatarSagar,
     avatarPaavo,
     avatarElina,
@@ -127,6 +130,9 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
     loadPngData('/charts/leg3-capital-deployment.png'),
     loadPngData('/charts/causal-chain.png'),
     loadPngData('/assets/aistudio/Spatial_layout_b50cf1a8.png'),
+    loadPngData('/assets/aistudio/27_Ilmakuva_talo_ja_jarvi_36164b51.jpg'),
+    loadPngData('/assets/aistudio/5_Olohuone_c5ff14de.jpg'),
+    loadPngData('/assets/aistudio/23_Studio_6e886580.jpg'),
     loadCircularAvatar('/assets/aistudio/ST_-_Black_Japan_6033a488.png', 180),
     loadCircularAvatar('/assets/aistudio/Paavo_02c44543.webp', 180),
     loadCircularAvatar('/assets/aistudio/Elina_49532e99.webp', 180),
@@ -196,35 +202,41 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
   doc.line(margin, y, pageWidth - margin, y)
   y += 7
 
-  // Authors with circular portraits in the header
+  // Authors with circular portraits and email IDs in the header
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(9)
   doc.setTextColor(100, 100, 100)
   doc.text('AUTHORS', margin, y)
   y += 6
 
-  const authorThumbSize = 10 // mm
+  const authorThumbSize = 11 // mm
   const authorSpacing = (contentWidth - authorThumbSize * 3) / 3
 
   const headerAuthors = [
-    { name: 'Sagar Tandon', avatar: avatarSagar },
-    { name: 'Paavo Pylkkanen', avatar: avatarPaavo },
-    { name: 'Elina Pylkkanen', avatar: avatarElina },
+    { name: 'Sagar Tandon', email: 's@threadsunite.xyz', avatar: avatarSagar },
+    { name: 'Paavo Pylkkanen', email: 'paavo.pylkkanen@helsinki.fi', avatar: avatarPaavo },
+    { name: 'Elina Pylkkanen', email: 'ElinaAP@proton.me', avatar: avatarElina },
   ]
 
   let curAuthX = margin
   headerAuthors.forEach((auth) => {
     if (auth.avatar) {
-      doc.addImage(auth.avatar, 'PNG', curAuthX, y - 2, authorThumbSize, authorThumbSize, undefined, 'FAST')
+      doc.addImage(auth.avatar, 'PNG', curAuthX, y - 1, authorThumbSize, authorThumbSize, undefined, 'FAST')
     }
     doc.setFont('helvetica', 'bold')
-    doc.setFontSize(9.5)
-    doc.setTextColor(40, 40, 40)
-    doc.text(auth.name, curAuthX + authorThumbSize + 3, y + 4)
+    doc.setFontSize(9)
+    doc.setTextColor(30, 30, 30)
+    doc.text(auth.name, curAuthX + authorThumbSize + 2.5, y + 3.5)
+
+    doc.setFont('helvetica', 'normal')
+    doc.setFontSize(7.5)
+    doc.setTextColor(110, 110, 110)
+    doc.text(auth.email, curAuthX + authorThumbSize + 2.5, y + 8)
+
     curAuthX += authorSpacing + authorThumbSize
   })
 
-  y += authorThumbSize + 4
+  y += authorThumbSize + 5
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(8.5)
   doc.setTextColor(120, 120, 120)
@@ -444,6 +456,8 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
   addParagraph('The physical space we have acquired can be divided into two parts:')
   addChart(chartSpatial, 'Spatial Layout: Upstream Lab (Think), The Bridge, and Downstream Lab (Do)')
 
+  addChart(photoEstate, 'The Upstream Sanctuary: Lakeside estate surrounded by Finnish pine forest for contemplative thinking and dialogue')
+
   addSubHeading('Upstream Lab - Think')
   addParagraph(
     'Think & Dialogue Forum will run workshops in cohorts of 15-25 people, wherein Paavo will focus on using principles of David Bohm to conduct dialogue exercises to allow us to activate our thoughts and help us decouple from our biases and memory so that we can start the thinking process from scratch, from zero, from singularity. Additionally, Paavo will use other great philosophers\' and scientists\' works to activate the thinking process, as David Bohm pointed out that thoughts are the root cause of all our problems.'
@@ -454,11 +468,14 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
   addParagraph(
     'The Upstream Lab is critical before anything we do because we have become slaves to thought; thought is like fire: it is a good servant but a bad master.'
   )
+  addChart(photoDialogueSalon, 'Upstream Dialogue Salon: Facilitating Bohmian dialogue and deep reflection with views of forest and water')
 
   addSubHeading('Downstream Lab - Do')
   addParagraph(
     'Sagar and Elina will complement Paavo to bring back from the upstream thinking process to downstream, practical issues, wherein, with new, fresh thoughts and thinking, the participants will delve into working on potential solutions and try to connect the dots with the real-world issues that are being faced by society, the environment, and nature at large. They will also explore how we can push the boundaries of science and technology in ways that serve humanity rather than become a destructive force.'
   )
+  addChart(photoStudio, 'Downstream Studio & Lab: Active prototyping, multi-disciplinary media, science, and practical synthesis')
+
   addParagraph(
     'We can\'t mindlessly have policies, science, and technology advancement without upstream thinking, as Bohm rightly pointed out in the book, Changing Consciousness:'
   )
@@ -471,7 +488,7 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
   /* ────────── SECTION 9: About the Authors ────────── */
   addHeading('9. About the Authors')
 
-  const addAuthorBlock = (avatarData: string | null, name: string, bio: string) => {
+  const addAuthorBlock = (avatarData: string | null, name: string, email: string, bio: string) => {
     const avatarDim = 16 // mm
     const avatarGap = 4
     const textStartX = avatarData ? margin + avatarDim + avatarGap : margin
@@ -481,8 +498,8 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
     doc.setFontSize(9)
     doc.setTextColor(55, 55, 55)
     const bioLines = doc.splitTextToSize(bio, textAvailableW)
-    const textHeight = bioLines.length * 4.8 + 6
-    const blockHeight = Math.max(avatarDim + 4, textHeight)
+    const textHeight = bioLines.length * 4.8 + 12
+    const blockHeight = Math.max(avatarDim + 6, textHeight)
 
     checkPageBreak(blockHeight + 6)
 
@@ -496,9 +513,14 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
     doc.text(name, textStartX, y + 4.5)
 
     doc.setFont('helvetica', 'normal')
+    doc.setFontSize(8.5)
+    doc.setTextColor(100, 100, 100)
+    doc.text(email, textStartX, y + 9)
+
+    doc.setFont('helvetica', 'normal')
     doc.setFontSize(9)
     doc.setTextColor(55, 55, 55)
-    doc.text(bioLines, textStartX, y + 9.5)
+    doc.text(bioLines, textStartX, y + 14)
 
     y += blockHeight + 6
   }
@@ -506,18 +528,21 @@ export async function generateWhitePaperPdf(options?: WhitePaperPdfOptions): Pro
   addAuthorBlock(
     avatarSagar,
     'Sagar Tandon',
+    's@threadsunite.xyz',
     'Sagar is an impact investor and capital allocator with more than a decade of global experience (emerging and developed markets) building impact funds, investing in more than 25+ impact ventures, and an active board member in three companies in the EU and one in South Korea.'
   )
 
   addAuthorBlock(
     avatarPaavo,
     'Paavo Pylkkanen',
+    'paavo.pylkkanen@helsinki.fi',
     'Paavo is a distinguished philosopher whose decades of work on physicist David Bohm\'s theories of quantum physics and consciousness provide the ontological foundation for the Upstream Institute. He has extensively researched the concept of the "Implicate Order" — the view that reality is an unbroken, flowing whole rather than a collection of isolated parts. At the Institute, Paavo directs intellectual coherence, ensuring that all research, policy design, and capital deployment transcend the limitations of fragmented, mechanical thought.'
   )
 
   addAuthorBlock(
     avatarElina,
     'Elina Pylkkanen',
+    'ElinaAP@proton.me',
     'Elina is a distinguished economist currently serving as Under-Secretary of State at Finland\'s Ministry of Economic Affairs and Employment. She holds a PhD in Economics and has previously served as Director of the Labor Institute for Economic Research (LABORE), Senior Economist at the OECD in Paris, and Visiting Scholar at Stanford University. Elina brings unparalleled expertise in labor markets, taxation, and social policy design. She leads the Upstream Nordic Social Policy Research Lab, translating philosophical frameworks into rigorous, population-scale economic interventions.'
   )
 

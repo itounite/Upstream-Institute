@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, createContext, useContext, useCallback } from 'react'
-import { Download, ArrowLeft, BookOpen, Filter, ArrowUpRight, FileText, Check } from 'lucide-react'
+import { Download, ArrowLeft, BookOpen, Filter, ArrowUpRight, FileText, Check, Mail } from 'lucide-react'
 import { generateWhitePaperPdf } from '../lib/generatePdf'
 
 /* ───────────────────────── NAVIGATION ───────────────────────── */
@@ -400,15 +400,6 @@ function ComingSoon() {
             Helsinki, 2026
           </span>
         </div>
-
-        <a href="mailto:hello@upstreaminstitute.org"
-          className="mt-6 transition-colors duration-700"
-          style={{ color: s.faint, fontSize: '0.6875rem', letterSpacing: '0.06em', fontWeight: 300 }}
-          onMouseEnter={e => (e.currentTarget.style.color = s.text)}
-          onMouseLeave={e => (e.currentTarget.style.color = s.faint)}
-        >
-          hello@upstreaminstitute.org
-        </a>
       </div>
 
       <div className="absolute bottom-6" style={{ zIndex: 2 }}>
@@ -504,34 +495,61 @@ function WhitePaper() {
         <div className="flex items-center justify-center gap-4 sm:gap-7 mt-8 sm:mt-10 flex-wrap"
           style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.03em', lineHeight: 1.6, color: s.text }}
         >
-          <div className="inline-flex items-center gap-2">
+          <div className="inline-flex items-center gap-2.5">
             <img
               src="/assets/aistudio/ST_-_Black_Japan_6033a488.png"
               alt="Sagar Tandon"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-1 shadow-sm"
+              className="w-8 h-8 rounded-full object-cover ring-1 shadow-sm"
               style={{ borderColor: s.divider }}
             />
-            <span className="whitespace-nowrap">Sagar Tandon</span>
+            <div className="text-left">
+              <span className="whitespace-nowrap font-medium block">Sagar Tandon</span>
+              <a
+                href="mailto:s@threadsunite.xyz"
+                className="text-[11px] block transition-opacity hover:opacity-80 underline decoration-dotted"
+                style={{ color: s.muted }}
+              >
+                s@threadsunite.xyz
+              </a>
+            </div>
           </div>
           <span style={{ color: s.ghost }}>&bull;</span>
-          <div className="inline-flex items-center gap-2">
+          <div className="inline-flex items-center gap-2.5">
             <img
               src="/assets/aistudio/Paavo_02c44543.webp"
               alt="Paavo Pylkkänen"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-1 shadow-sm"
+              className="w-8 h-8 rounded-full object-cover ring-1 shadow-sm"
               style={{ borderColor: s.divider }}
             />
-            <span className="whitespace-nowrap">Paavo Pylkk&auml;nen</span>
+            <div className="text-left">
+              <span className="whitespace-nowrap font-medium block">Paavo Pylkk&auml;nen</span>
+              <a
+                href="mailto:paavo.pylkkanen@helsinki.fi"
+                className="text-[11px] block transition-opacity hover:opacity-80 underline decoration-dotted"
+                style={{ color: s.muted }}
+              >
+                paavo.pylkkanen@helsinki.fi
+              </a>
+            </div>
           </div>
           <span style={{ color: s.ghost }}>&bull;</span>
-          <div className="inline-flex items-center gap-2">
+          <div className="inline-flex items-center gap-2.5">
             <img
               src="/assets/aistudio/Elina_49532e99.webp"
               alt="Elina Pylkkänen"
-              className="w-7 h-7 sm:w-8 sm:h-8 rounded-full object-cover ring-1 shadow-sm"
+              className="w-8 h-8 rounded-full object-cover ring-1 shadow-sm"
               style={{ borderColor: s.divider }}
             />
-            <span className="whitespace-nowrap">Elina Pylkk&auml;nen</span>
+            <div className="text-left">
+              <span className="whitespace-nowrap font-medium block">Elina Pylkk&auml;nen</span>
+              <a
+                href="mailto:ElinaAP@proton.me"
+                className="text-[11px] block transition-opacity hover:opacity-80 underline decoration-dotted"
+                style={{ color: s.muted }}
+              >
+                ElinaAP@proton.me
+              </a>
+            </div>
           </div>
         </div>
         <p className="mt-3" style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.04em' }}>
@@ -726,6 +744,20 @@ function WhitePaper() {
           <p>The physical space we have acquired can be divided into two parts:</p>
           <WPChart src="/assets/aistudio/Spatial_layout_b50cf1a8.png" alt="Spatial Layout: Upstream Lab (Think), The Bridge, and Downstream Lab (Do)" />
 
+          {/* Aerial Sanctuary Photo */}
+          <figure className="my-8 sm:my-10 -mx-2 sm:-mx-4 md:-mx-6">
+            <img
+              src="/assets/aistudio/27_Ilmakuva_talo_ja_jarvi_36164b51.jpg"
+              alt="The Upstream Sanctuary: Lakeside estate and Finnish forest"
+              className="w-full rounded shadow-sm object-cover max-h-[500px]"
+              style={{ border: `1px solid ${s.divider}` }}
+              loading="lazy"
+            />
+            <figcaption className="text-center text-xs mt-2.5 italic" style={{ color: s.muted }}>
+              The Upstream Sanctuary: Lakeside estate surrounded by Finnish pine forest for contemplative thinking and dialogue.
+            </figcaption>
+          </figure>
+
           <WPSubSection title="Upstream Lab - Think">
             <p>
               Think &amp; Dialogue Forum will run workshops in cohorts of 15-25 people, wherein Paavo will focus on using principles of David Bohm to conduct dialogue exercises to allow us to activate our thoughts and help us decouple from our biases and memory so that we can start the thinking process from scratch, from zero, from singularity. Additionally, Paavo will use other great philosophers&rsquo; and scientists&rsquo; works to activate the thinking process, as David Bohm pointed out that thoughts are the root cause of all our problems.
@@ -736,12 +768,41 @@ function WhitePaper() {
             <p>
               The Upstream Lab is critical before anything we do because we have become slaves to thought; thought is like fire: it is a good servant but a bad master.
             </p>
+
+            {/* Living Salon Photo */}
+            <figure className="my-6">
+              <img
+                src="/assets/aistudio/5_Olohuone_c5ff14de.jpg"
+                alt="Upstream Dialogue Salon"
+                className="w-full rounded shadow-sm object-cover max-h-[440px]"
+                style={{ border: `1px solid ${s.divider}` }}
+                loading="lazy"
+              />
+              <figcaption className="text-center text-xs mt-2 italic" style={{ color: s.muted }}>
+                Upstream Dialogue Salon: Facilitating Bohmian dialogue and deep reflection with views of forest and water.
+              </figcaption>
+            </figure>
           </WPSubSection>
 
           <WPSubSection title="Downstream Lab - Do">
             <p>
               Sagar and Elina will complement Paavo to bring back from the upstream thinking process to downstream, practical issues, wherein, with new, fresh thoughts and thinking, the participants will delve into working on potential solutions and try to connect the dots with the real-world issues that are being faced by society, the environment, and nature at large. They will also explore how we can push the boundaries of science and technology in ways that serve humanity rather than become a destructive force.
             </p>
+
+            {/* Creative Studio Photo */}
+            <figure className="my-6">
+              <img
+                src="/assets/aistudio/23_Studio_6e886580.jpg"
+                alt="Downstream Lab Creative Studio"
+                className="w-full rounded shadow-sm object-cover max-h-[440px]"
+                style={{ border: `1px solid ${s.divider}` }}
+                loading="lazy"
+              />
+              <figcaption className="text-center text-xs mt-2 italic" style={{ color: s.muted }}>
+                Downstream Studio &amp; Lab: Active prototyping, multi-disciplinary media, science, and practical synthesis.
+              </figcaption>
+            </figure>
+
             <p>
               We can&rsquo;t mindlessly have policies, science, and technology advancement without upstream thinking, as Bohm rightly pointed out in the book, <em>Changing Consciousness</em>:
             </p>
@@ -760,16 +821,16 @@ function WhitePaper() {
             About the Authors
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-6 -mx-2 sm:-mx-4 md:-mx-8 lg:-mx-12 items-stretch">
+          <div className="space-y-6 sm:space-y-8">
             {/* Sagar Tandon */}
             <div
-              className="p-5 sm:p-6 rounded-lg transition-all duration-300 flex flex-col justify-start"
+              className="p-6 sm:p-7 rounded-lg transition-all duration-300"
               style={{
                 border: `1px solid ${s.divider}`,
                 background: theme === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
               }}
             >
-              <div className="flex items-center gap-3.5 mb-4">
+              <div className="flex items-center gap-4 sm:gap-5 mb-4">
                 <img
                   src="/assets/aistudio/ST_-_Black_Japan_6033a488.png"
                   alt="Sagar Tandon"
@@ -777,25 +838,33 @@ function WhitePaper() {
                   style={{ borderColor: s.divider }}
                 />
                 <div>
-                  <h3 className="font-semibold text-base sm:text-lg leading-tight" style={{ color: s.text }}>
+                  <h3 className="font-semibold text-lg sm:text-xl leading-tight" style={{ color: s.text }}>
                     Sagar Tandon
                   </h3>
+                  <a
+                    href="mailto:s@threadsunite.xyz"
+                    className="inline-flex items-center gap-1.5 mt-1.5 text-xs sm:text-sm transition-colors hover:underline"
+                    style={{ color: s.muted }}
+                  >
+                    <Mail size={13} className="opacity-70 flex-shrink-0" />
+                    <span>s@threadsunite.xyz</span>
+                  </a>
                 </div>
               </div>
-              <p className="text-xs sm:text-[13px] leading-relaxed" style={{ color: s.muted }}>
+              <p className="text-sm sm:text-[15px] leading-relaxed" style={{ color: s.muted }}>
                 Sagar is an impact investor and capital allocator with more than a decade of global experience (emerging and developed markets) building impact funds, investing in more than 25+ impact ventures, and an active board member in three companies in the EU and one in South Korea.
               </p>
             </div>
 
             {/* Paavo Pylkkänen */}
             <div
-              className="p-5 sm:p-6 rounded-lg transition-all duration-300 flex flex-col justify-start"
+              className="p-6 sm:p-7 rounded-lg transition-all duration-300"
               style={{
                 border: `1px solid ${s.divider}`,
                 background: theme === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
               }}
             >
-              <div className="flex items-center gap-3.5 mb-4">
+              <div className="flex items-center gap-4 sm:gap-5 mb-4">
                 <img
                   src="/assets/aistudio/Paavo_02c44543.webp"
                   alt="Paavo Pylkkänen"
@@ -803,25 +872,33 @@ function WhitePaper() {
                   style={{ borderColor: s.divider }}
                 />
                 <div>
-                  <h3 className="font-semibold text-base sm:text-lg leading-tight" style={{ color: s.text }}>
+                  <h3 className="font-semibold text-lg sm:text-xl leading-tight" style={{ color: s.text }}>
                     Paavo Pylkk&auml;nen
                   </h3>
+                  <a
+                    href="mailto:paavo.pylkkanen@helsinki.fi"
+                    className="inline-flex items-center gap-1.5 mt-1.5 text-xs sm:text-sm transition-colors hover:underline"
+                    style={{ color: s.muted }}
+                  >
+                    <Mail size={13} className="opacity-70 flex-shrink-0" />
+                    <span>paavo.pylkkanen@helsinki.fi</span>
+                  </a>
                 </div>
               </div>
-              <p className="text-xs sm:text-[13px] leading-relaxed" style={{ color: s.muted }}>
+              <p className="text-sm sm:text-[15px] leading-relaxed" style={{ color: s.muted }}>
                 Paavo is a distinguished philosopher whose decades of work on physicist David Bohm&rsquo;s theories of quantum physics and consciousness provide the ontological foundation for the Upstream Institute. He has extensively researched the concept of the &ldquo;Implicate Order&rdquo;&mdash;the view that reality is an unbroken, flowing whole rather than a collection of isolated parts. At the Institute, Paavo directs intellectual coherence, ensuring that all research, policy design, and capital deployment transcend the limitations of fragmented, mechanical thought.
               </p>
             </div>
 
             {/* Elina Pylkkänen */}
             <div
-              className="p-5 sm:p-6 rounded-lg transition-all duration-300 flex flex-col justify-start"
+              className="p-6 sm:p-7 rounded-lg transition-all duration-300"
               style={{
                 border: `1px solid ${s.divider}`,
                 background: theme === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.015)',
               }}
             >
-              <div className="flex items-center gap-3.5 mb-4">
+              <div className="flex items-center gap-4 sm:gap-5 mb-4">
                 <img
                   src="/assets/aistudio/Elina_49532e99.webp"
                   alt="Elina Pylkkänen"
@@ -829,12 +906,20 @@ function WhitePaper() {
                   style={{ borderColor: s.divider }}
                 />
                 <div>
-                  <h3 className="font-semibold text-base sm:text-lg leading-tight" style={{ color: s.text }}>
+                  <h3 className="font-semibold text-lg sm:text-xl leading-tight" style={{ color: s.text }}>
                     Elina Pylkk&auml;nen
                   </h3>
+                  <a
+                    href="mailto:ElinaAP@proton.me"
+                    className="inline-flex items-center gap-1.5 mt-1.5 text-xs sm:text-sm transition-colors hover:underline"
+                    style={{ color: s.muted }}
+                  >
+                    <Mail size={13} className="opacity-70 flex-shrink-0" />
+                    <span>ElinaAP@proton.me</span>
+                  </a>
                 </div>
               </div>
-              <p className="text-xs sm:text-[13px] leading-relaxed" style={{ color: s.muted }}>
+              <p className="text-sm sm:text-[15px] leading-relaxed" style={{ color: s.muted }}>
                 Elina is a distinguished economist currently serving as Under-Secretary of State at Finland&rsquo;s Ministry of Economic Affairs and Employment. She holds a PhD in Economics and has previously served as Director of the Labor Institute for Economic Research (LABORE), Senior Economist at the OECD in Paris, and Visiting Scholar at Stanford University. Elina brings unparalleled expertise in labor markets, taxation, and social policy design. She leads the Upstream Nordic Social Policy Research Lab, translating philosophical frameworks into rigorous, population-scale economic interventions.
               </p>
             </div>
@@ -900,14 +985,9 @@ function WhitePaper() {
                 Helsinki, Finland
               </p>
             </div>
-            <a href="mailto:hello@upstreaminstitute.org"
-              className="transition-colors duration-500"
-              style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.03em' }}
-              onMouseEnter={e => (e.currentTarget.style.color = s.text)}
-              onMouseLeave={e => (e.currentTarget.style.color = s.faint)}
-            >
-              hello@upstreaminstitute.org
-            </a>
+            <p style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.04em' }}>
+              A New School of Thought &bull; Intergenerational Impact
+            </p>
           </div>
         </footer>
       </article>
@@ -1137,7 +1217,7 @@ function ThinkRoom() {
               Read Think Upstream White Paper
             </button>
             <a
-              href="mailto:hello@upstreaminstitute.org"
+              href="mailto:s@threadsunite.xyz"
               className="transition-colors duration-300 px-4 py-2 rounded text-xs uppercase tracking-wider font-medium text-center"
               style={{
                 border: `1px solid ${s.divider}`,
@@ -1168,14 +1248,9 @@ function ThinkRoom() {
                 Helsinki, Finland
               </p>
             </div>
-            <a href="mailto:hello@upstreaminstitute.org"
-              className="transition-colors duration-500"
-              style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.03em' }}
-              onMouseEnter={e => (e.currentTarget.style.color = s.text)}
-              onMouseLeave={e => (e.currentTarget.style.color = s.faint)}
-            >
-              hello@upstreaminstitute.org
-            </a>
+            <p style={{ color: s.faint, fontSize: '0.6875rem', fontWeight: 300, letterSpacing: '0.04em' }}>
+              Think Room Archive &bull; Active Thought
+            </p>
           </div>
         </footer>
       </main>
